@@ -90,6 +90,7 @@ SOCIAL DATABASE
 (*) Seems like we are pulling the society info directly from the SU website? How do we do that
 --> access social/event info (listed in acceptance test 2.1)
     --> creation of socials by users/committee members
+--> Apply search filters and return corresponding results (special case: no results)
 --> access engagement metrics (no. of people interested, how many turned up for previous socials, etc.?)
 
 FEEDBACK DATABASE
