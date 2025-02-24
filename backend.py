@@ -93,6 +93,56 @@ SOCIAL DATABASE
 --> Apply search filters and return corresponding results (special case: no results)
 --> access engagement metrics (no. of people interested, how many turned up for previous socials, etc.?)
 '''
+def addSocial (cursor, userID):
+    """
+    Allows a committee member to create a social
+    """
+    # will need to create an soc ID here
+    # will also need to take in all the facts about the event as input e.g. the things that you'd filter for
+    pass
+
+def deleteSocial(cursor, socID, userID):
+    """
+    Allows committee members to delete a social
+    """
+    # this will need to be linked to the whole notification thing
+    # what if the comittee member for whatever reason cannot access a device to delete the social, will we need to give other people permissions?
+    cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID (?)", (userID, socID))
+    return
+
+def getSocialData(cursor, socID, metric):
+    """
+    Allows data about a social to be found
+    """
+    # what if they type in more than one metric?????????
+    # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
+    cursor.execute("SELECT Data FROM Event WHERE societyID (?)", (socID,))
+    return cursor.fetchall()
+
+def filterSocials (cursor, filters):
+    """
+    Filters the socials that the user sees
+    """
+    # I guess filters will be an array? 
+    # does this even work???????
+    if filters:
+        query = "SELECT Society.* from EVENT WHERE "
+        keywords = []
+        for loop in range (len(filters)):
+            if loop == 0:
+                query += "Event_description LIKE ?"
+            else:
+                query += "OR Event_description LIKE ?"
+            keywords.extend([f"%{filters[loop]}%"])
+        cursor.execute(query, keywords)
+    else:
+        cursor.execute("SELECT Society.* from Event")
+    return cursor.fetchall()
+
+
+
+    
+
 
 '''
 FEEDBACK DATABASE
