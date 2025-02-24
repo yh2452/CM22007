@@ -93,12 +93,34 @@ SOCIAL DATABASE
 --> Apply search filters and return corresponding results (special case: no results)
 --> access engagement metrics (no. of people interested, how many turned up for previous socials, etc.?)
 '''
-def addSocial (cursor, userID):
+
+def getEventID(cursor, name):
+    """
+    Obtains the eventID for backend use
+    """
+    cursor.execute ("SELECT eventID FROM Event WHERE name = ?", (name,))
+    return cursor.fetchall()
+
+def getSocID(cursor, name):
+    """
+    Obtains the socID for backend use
+    """
+    cursor.execute ("SELECT socID FROM Society WHERE name = ?", (name,))
+    return cursor.fetchall()
+
+def addSocial (cursor, name, society_name, userID, data):
     """
     Allows a committee member to create a social
     """
-    # will need to create an soc ID here
     # will also need to take in all the facts about the event as input e.g. the things that you'd filter for
+    # does this also need to get added to a society table
+
+    eventID = getEventID(cursor, name)
+    socID = getSocID(cursor, society_name)
+    if eventID is None:
+        cursor.execute("INSERT INTO Event (name,  userID, data) VALUES (?,?,?)", (name,userID,data,))
+    # need to finish this
+
     pass
 
 def deleteSocial(cursor, socID, userID):
@@ -107,7 +129,7 @@ def deleteSocial(cursor, socID, userID):
     """
     # this will need to be linked to the whole notification thing
     # what if the comittee member for whatever reason cannot access a device to delete the social, will we need to give other people permissions?
-    cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID (?)", (userID, socID))
+    cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID = (?)", (userID, socID))
     return
 
 def getSocialData(cursor, socID, metric):
@@ -116,7 +138,7 @@ def getSocialData(cursor, socID, metric):
     """
     # what if they type in more than one metric?????????
     # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
-    cursor.execute("SELECT Data FROM Event WHERE societyID (?)", (socID,))
+    cursor.execute("SELECT Data FROM Event WHERE societyID = (?)", (socID,))
     return cursor.fetchall()
 
 def filterSocials (cursor, filters):
@@ -126,7 +148,7 @@ def filterSocials (cursor, filters):
     # I guess filters will be an array? 
     # does this even work???????
     if filters:
-        query = "SELECT Society.* from EVENT WHERE "
+        query = "SELECT Society.* FROM EVENT WHERE "
         keywords = []
         for loop in range (len(filters)):
             if loop == 0:
@@ -136,7 +158,7 @@ def filterSocials (cursor, filters):
             keywords.extend([f"%{filters[loop]}%"])
         cursor.execute(query, keywords)
     else:
-        cursor.execute("SELECT Society.* from Event")
+        cursor.execute("SELECT Society.* FROM Event")
     return cursor.fetchall()
 
 
