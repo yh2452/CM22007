@@ -24,7 +24,7 @@ def toggleAttend(cursor, userID, eventID):
     cursor.execute("SELECT eventID FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
-        cursor.execute("INSERT INTO Attended VALUES (?,?)",(userID, eventID))
+        cursor.execute("INSERT INTO Attended VALUES (?,?)", (userID, eventID))
     else:
         cursor.execute("DELETE FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
 
@@ -161,11 +161,6 @@ def filterSocials (cursor, filters):
         cursor.execute("SELECT Society.* FROM Event")
     return cursor.fetchall()
 
-
-
-    
-
-
 '''
 FEEDBACK DATABASE
 --> access user ratings and feedback for a specific social
@@ -179,15 +174,13 @@ FEEDBACK DATABASE
 ### [FEEDBACK TABLE] ###
 # A 'Feedback' Table where we store (feedbackID, eventID, feedbackData?)
 
-def addFeedback(cursor, feedbackData):
+def addFeedback(cursor, eventID, feedbackData):
     """
     Adds user feedback to the corresponding table.
     """
     # format feedback data?
     # feedbackData = format(feedbackData)
-    nextID = 1  # how are we going to keep track of next available ID?
-    nextID += 1 
-    cursor.execute("INSERT INTO Feedback VALUES (?, ?)", (nextID, feedbackData))
+    cursor.execute("INSERT INTO Feedback VALUES (?,?)", (eventID, feedbackData))
 
 def getFeedback(cursor, feedbackID):
     """
@@ -207,14 +200,13 @@ def getEventFeedback(cursor, eventID):
 ### [REPORT TABLE] ###
 # A 'Report' Table where we store (reportID, eventID, reportData?)
 
-def addReport(cursor, reportData):
+def addReport(cursor, eventID, reportData):
     """
     Adds a malpractice report to the corresponding table.
     """
     # format report data?
     # reportData = format(reportData)
-    nextID = 1  # how are we going to keep track of next available ID? 
-    cursor.execute("INSERT INTO Feedback VALUES (?, ?)", (nextID, reportData))
+    cursor.execute("INSERT INTO Report VALUES (?,?)", (eventID, reportData))
 
 def getReport(cursor, reportID):
     """
