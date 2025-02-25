@@ -108,7 +108,7 @@ def getSocID(cursor, name):
     cursor.execute ("SELECT socID FROM Society WHERE name = ?", (name,))
     return cursor.fetchall()
 
-def addSocial (cursor, name, society_name, userID, data):
+def addSocial (cursor, name, society_name, userID, Event_description):
     """
     Allows a committee member to create a social
     """
@@ -118,10 +118,9 @@ def addSocial (cursor, name, society_name, userID, data):
     eventID = getEventID(cursor, name)
     socID = getSocID(cursor, society_name)
     if eventID is None:
-        cursor.execute("INSERT INTO Event (name,  userID, data) VALUES (?,?,?)", (name,userID,data,))
-    # need to finish this
+        cursor.execute("INSERT INTO Event (name, socID, userID, Event_description) VALUES (?,?,?)", (name,socID, userID, Event_description,))
 
-    pass
+    
 
 def deleteSocial(cursor, socID, userID):
     """
@@ -132,13 +131,13 @@ def deleteSocial(cursor, socID, userID):
     cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID = (?)", (userID, socID))
     return
 
-def getSocialData(cursor, socID, metric):
+def getSocialData(cursor, socID, eventID, metric):
     """
     Allows data about a social to be found
     """
     # what if they type in more than one metric?????????
     # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
-    cursor.execute("SELECT Data FROM Event WHERE societyID = (?)", (socID,))
+    cursor.execute("SELECT Data FROM Event WHERE societyID = (?) AND eventID = (?)", (socID, eventID))
     return cursor.fetchall()
 
 def filterSocials (cursor, filters):
