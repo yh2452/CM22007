@@ -163,12 +163,36 @@ def filterSocials (cursor, filters):
 '''
 FEEDBACK DATABASE
 --> access user ratings and feedback for a specific social
-    --> generate an entry for each social once the event date has passed 
-        --> maybe let event hoster input how many people showed up (for engagement metrics?)
+    --> maybe let event hoster input how many people showed up (for engagement metrics?)
     --> add user ratings and feedback to the specific social in the first place
 --> access malpractice reports (via reportID or eventID)
     --> add malpractice reports to database in the first place
 '''
+
+### [RATING TABLE] ###
+# A 'Rating' Table where we store (eventID, averageRating, ratingCount)
+# averageRating is a positive integer between 1 and 5.
+
+def addRating(cursor, eventID, rating):
+    """
+    Adds user rating to the corresponding table.
+
+    (*) User rating is a positive integer between 1 and 5.
+    """
+    cursor.execute("SELECT averageRating, ratingCount FROM Raing WHERE eventID = (?)", (eventID,))
+    ratingStats = cursor.fetchall()
+    if not ratingStats:
+        cursor.execute("INSERT INTO Rating VALUES (?,?,?)", (eventID, rating, 1))
+    else:
+        newCount = ratingStats[1] + 1
+        newAvg = round((ratingStats[0]*ratingStats[1] + rating) / newCount)
+        cursor.execute("UPDATE Rating SET averageRating = (?), ratingCount = (?) WHERE eventID = (?)", (newAvg, newCount, eventID))
+
+def getRating(cursor, eventID):
+    """
+    Retrieves average user rating for a given eventID.
+    """
+    cursor.execute("SELECT averageRating FROM Rating WHERE eventID = (?)", (eventID,))
 
 ### [FEEDBACK TABLE] ###
 # A 'Feedback' Table where we store (feedbackID, eventID, feedbackData?)
