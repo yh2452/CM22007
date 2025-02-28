@@ -1,5 +1,16 @@
 import sqlite3
 import datetime
+import hashlib
+import os
+
+def SHA3(data):
+    '''
+    Hashes a given input (password)
+    '''
+    salt = os.urandom(16)
+    message = "h".encode() # need to change this to something reliable
+    hash_object = hashlib.sha3_256(salt + message)
+    hash_hex = hash_object.hexdigest()    
 
 '''
 USER DATABASE
