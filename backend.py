@@ -8,9 +8,15 @@ def SHA3(data):
     Hashes a given input (password)
     '''
     salt = os.urandom(16)
-    message = "h".encode() # need to change this to something reliable
-    hash_object = hashlib.sha3_256(salt + message)
-    hash_hex = hash_object.hexdigest()    
+    hash_object = hashlib.sha3_256(salt + data)
+    return salt.hex() + hash_object.hexdigest()  
+
+
+def sanitise_input(data, max_length):
+    sanitised = data.strip()[:max_length]
+    # any other sanitisation we need to do?
+    # perhaps filter punctuation? or swear words? idk
+    return sanitised
 
 '''
 USER DATABASE
