@@ -14,8 +14,7 @@ def SHA3(data):
 
 def sanitise_input(data, max_length):
     sanitised = data.strip()[:max_length]
-    # any other sanitisation we need to do?
-    # perhaps filter punctuation? or swear words? idk
+    
     return sanitised
 
 '''
@@ -136,8 +135,9 @@ def addSocial (cursor, name, society_name, userID, Event_description):
     socID = getSocID(cursor, society_name)
     if eventID is None:
         cursor.execute("INSERT INTO Event (name, socID, userID, Event_description) VALUES (?,?,?)", (name,socID, userID, Event_description,))
+        return True
+    return False
 
-    
 
 def deleteSocial(cursor, socID, userID):
     """
@@ -168,9 +168,9 @@ def filterSocials (cursor, filters):
         keywords = []
         for loop in range (len(filters)):
             if loop == 0:
-                query += "Event_description LIKE ?"
+                query += "Event_description LIKE (?)"
             else:
-                query += "OR Event_description LIKE ?"
+                query += "OR Event_description LIKE (?)"
             keywords.extend([f"%{filters[loop]}%"])
         cursor.execute(query, keywords)
     else:
