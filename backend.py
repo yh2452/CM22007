@@ -2,6 +2,7 @@ import sqlite3
 import datetime
 import hashlib
 import os
+from profanity_check import predict
 
 def SHA3(data):
     '''
@@ -14,7 +15,8 @@ def SHA3(data):
 
 def sanitise_input(data, max_length):
     sanitised = data.strip()[:max_length]
-    
+    if predict([sanitised]) == 1:
+        return None
     return sanitised
 
 '''
