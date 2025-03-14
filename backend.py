@@ -103,6 +103,40 @@ def getFollowed(cursor, userID):
     cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=FOLLOWED.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
 
+### [COMMITTEE TABLE] ###
+# A 'Committee' Table where we store (userID, societyID, adminFlag)
+# 'admin' is a boolean determining the administrator status of the user within the society.
+
+def addMember(cursor, userID, socID):
+    """
+    Adds a user as a society committee member.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()
+    if not status:
+        cursor.execute("INSERT INTO Committee VALUES (?,?,?)", (userID, socID, 0))
+
+def removeMember(cursor, userID, socID):
+    """
+    Removes a user from society committee member status.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()
+    if not status:
+        cursor.execute("DELETE FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+def toggleAdmin(cursor, userID, socID):
+    """
+    Sets / unsets a user as a society administrator.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()[0][0]
+    if status:
+        cursor.execute("UPDATE Committee SET adminFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    else:
+        cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+
 '''
 SOCIALS
 (*) Seems like we are pulling the society info directly from the SU website? How do we do that
@@ -186,6 +220,7 @@ def filterSocials (cursor, filters):
     else:
         cursor.execute("SELECT * FROM Event")
     return cursor.fetchall()
+
 
 '''
 FEEDBACK
