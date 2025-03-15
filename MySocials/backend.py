@@ -2,22 +2,27 @@ import sqlite3
 import datetime
 import hashlib
 import os
-from profanity_check import predict
+# from profanity_check import predict
 
-def SHA3(data):
+def SHA3(data, salt):
     '''
-    Hashes a given input (password)
+    Hashes a given input (password) with salt (username for now)
     '''
-    salt = os.urandom(16)
+    #salt = os.urandom(16)
     hash_object = hashlib.sha3_256(salt + data)
     return salt.hex() + hash_object.hexdigest()  
 
 
-def sanitise_input(data, max_length):
-    sanitised = data.strip()[:max_length]
-    if predict([sanitised]) == 1:
-        return None
-    return sanitised
+# def sanitise_input(data, max_length):
+#     sanitised = data.strip()[:max_length]
+#     if predict([sanitised]) == 1:
+#         return None
+#     return sanitised
+
+def get_db_cursor():
+    # NOTE: set the database link to wherever we're keeping the main database. 
+    cursor = sqlite3.connect('database.db')
+    return cursor
 
 '''
 USERS
@@ -31,6 +36,41 @@ USERS
 --> access followed societies
     --> mark societies as 'followed' when users first select to 'follow' (similar for 'unfollow')
 '''
+
+### [USER TABLE] ###
+# A 'User' Table where we store (userID, forename, surname, username, password, email)
+# Note that the password field is the hash of the password
+# TODO: determine how account deletion functions (username or email required?)
+# TODO: check database has autoincrement for userID field
+# TODO: finish writing addUser and removeUser functions
+
+def isUserDuplicate(cursor, username, email):
+    """
+    Called when registering a user. Returns true if given username and email are not in use by other users. 
+    """
+    cursor.execute("SELECT userID FROM User WHERE username = (?) OR email = (?)", (username, email))
+    status = cursor.fetchall()
+    if status:
+        #i.e. duplicate users present
+        return True
+    else: 
+        return False
+
+def addUser(cursor, forename, surname, username, password, email):
+    pass
+
+def removeUser(cursor):
+    pass
+
+def getUserFromUsername(cursor, username):
+    """
+    Checks to see if a given User exists from username
+    """
+    cursor.execute("SELECT * FROM User WHERE username = (?)", (username))
+    user = cursor.fetchone()
+    return user
+
+
 
 ### [ATTENDED TABLE] ###
 # An 'Attended' Table where we store (userID, eventID)
