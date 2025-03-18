@@ -20,7 +20,7 @@ def sanitise_input(data, max_length):
     return sanitised
 
 '''
-USER DATABASE
+USERS
 --> access socials a user has attended in the past
     --> mark events as 'attended' once the event date has passed
     --> Calendar for future events user is planning to attend
@@ -103,8 +103,42 @@ def getFollowed(cursor, userID):
     cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=FOLLOWED.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
 
+### [COMMITTEE TABLE] ###
+# A 'Committee' Table where we store (userID, societyID, adminFlag)
+# 'admin' is a boolean determining the administrator status of the user within the society.
+
+def addMember(cursor, userID, socID):
+    """
+    Adds a user as a society committee member.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()
+    if not status:
+        cursor.execute("INSERT INTO Committee VALUES (?,?,?)", (userID, socID, 0))
+
+def removeMember(cursor, userID, socID):
+    """
+    Removes a user from society committee member status.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()
+    if not status:
+        cursor.execute("DELETE FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+def toggleAdmin(cursor, userID, socID):
+    """
+    Sets / unsets a user as a society administrator.
+    """
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()[0][0]
+    if status:
+        cursor.execute("UPDATE Committee SET adminFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    else:
+        cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+
 '''
-SOCIAL DATABASE
+SOCIALS
 (*) Seems like we are pulling the society info directly from the SU website? How do we do that
 --> access social/event info (listed in acceptance test 2.1)
     --> creation of socials by users/committee members
@@ -112,31 +146,38 @@ SOCIAL DATABASE
 --> access engagement metrics (no. of people interested, how many turned up for previous socials, etc.?)
 '''
 
+### [SOCIETY TABLE] ###
+# A 'Society' table where we store (societyID, societyName)
+
+### [EVENT TABLE] ###
+# An 'Event' table where we store (eventID, societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount)
+# averageRating is a positive integer between 1 and 5.
+
 def getEventID(cursor, name):
     """
     Obtains the eventID for backend use
     """
-    cursor.execute ("SELECT eventID FROM Event WHERE name = ?", (name,))
+    cursor.execute ("SELECT eventID FROM Event WHERE eventName = ?", (name,))
     return cursor.fetchall()
 
 def getSocID(cursor, name):
     """
     Obtains the socID for backend use
     """
-    cursor.execute ("SELECT socID FROM Society WHERE name = ?", (name,))
+    cursor.execute ("SELECT societyID FROM Society WHERE societyName = ?", (name,))
     return cursor.fetchall()
 
-def addSocial (cursor, name, society_name, userID, Event_description):
+def addSocial (cursor, eventName, societyName, userID, eventDate, eventDescription, eventData):
     """
     Allows a committee member to create a social
     """
     # will also need to take in all the facts about the event as input e.g. the things that you'd filter for
     # does this also need to get added to a society table
 
-    eventID = getEventID(cursor, name)
-    socID = getSocID(cursor, society_name)
+    eventID = getEventID(cursor, eventName)
+    socID = getSocID(cursor, societyName)
     if eventID is None:
-        cursor.execute("INSERT INTO Event (name, socID, userID, Event_description) VALUES (?,?,?)", (name,socID, userID, Event_description,))
+        cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
         return True
     return False
 
@@ -154,9 +195,10 @@ def getSocialData(cursor, socID, eventID, metric):
     """
     Allows data about a social to be found
     """
+    #### do we want to show eventDescription (tags) as well? - Jamie
     # what if they type in more than one metric?????????
     # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
-    cursor.execute("SELECT Data FROM Event WHERE societyID = (?) AND eventID = (?)", (socID, eventID))
+    cursor.execute("SELECT eventData FROM Event WHERE societyID = (?) AND eventID = (?)", (socID, eventID))
     return cursor.fetchall()
 
 def filterSocials (cursor, filters):
@@ -166,31 +208,28 @@ def filterSocials (cursor, filters):
     # I guess filters will be an array? 
     # does this even work???????
     if filters:
-        query = "SELECT Society.* FROM EVENT WHERE "
+        query = "SELECT * FROM Event WHERE "
         keywords = []
         for loop in range (len(filters)):
             if loop == 0:
-                query += "Event_description LIKE (?)"
+                query += "eventDescription LIKE (?)"
             else:
-                query += "OR Event_description LIKE (?)"
+                query += " OR eventDescription LIKE (?)"
             keywords.extend([f"%{filters[loop]}%"])
         cursor.execute(query, keywords)
     else:
-        cursor.execute("SELECT Society.* FROM Event")
+        cursor.execute("SELECT * FROM Event")
     return cursor.fetchall()
 
+
 '''
-FEEDBACK DATABASE
+FEEDBACK
 --> access user ratings and feedback for a specific social
     --> maybe let event hoster input how many people showed up (for engagement metrics?)
     --> add user ratings and feedback to the specific social in the first place
 --> access malpractice reports (via reportID or eventID)
     --> add malpractice reports to database in the first place
 '''
-
-### [RATING TABLE] ###
-# A 'Rating' Table where we store (eventID, averageRating, ratingCount)
-# averageRating is a positive integer between 1 and 5.
 
 def addRating(cursor, eventID, rating):
     """
@@ -200,18 +239,15 @@ def addRating(cursor, eventID, rating):
     """
     cursor.execute("SELECT averageRating, ratingCount FROM Raing WHERE eventID = (?)", (eventID,))
     ratingStats = cursor.fetchall()
-    if not ratingStats:
-        cursor.execute("INSERT INTO Rating VALUES (?,?,?)", (eventID, rating, 1))
-    else:
-        newCount = ratingStats[1] + 1
-        newAvg = round((ratingStats[0]*ratingStats[1] + rating) / newCount)
-        cursor.execute("UPDATE Rating SET averageRating = (?), ratingCount = (?) WHERE eventID = (?)", (newAvg, newCount, eventID))
+    newCount = ratingStats[1] + 1
+    newAvg = round((ratingStats[0]*ratingStats[1] + rating) / newCount)
+    cursor.execute("UPDATE Event SET averageRating = (?), ratingCount = (?) WHERE eventID = (?)", (newAvg, newCount, eventID))
 
 def getRating(cursor, eventID):
     """
     Retrieves average user rating for a given eventID.
     """
-    cursor.execute("SELECT averageRating FROM Rating WHERE eventID = (?)", (eventID,))
+    cursor.execute("SELECT averageRating FROM Event WHERE eventID = (?)", (eventID,))
 
 ### [FEEDBACK TABLE] ###
 # A 'Feedback' Table where we store (feedbackID, eventID, feedbackData?)
