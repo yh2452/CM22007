@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MySocials</title>
+    <script>
+        function tristate(checkbox) {
+            if (!checkbox.checked && !checkbox.indeterminate) {
+                checkbox.checked = true;
+                checkbox.indeterminate = false;
+            } else if (checkbox.checked) {
+                checkbox.checked = false;
+                checkbox.indeterminate = true;
+            } else {
+                checkbox.checked = false;
+                checkbox.indeterminate = false;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>MySocials</h1>
+    <div>
+        <form action="/search" method="GET">
+            <input type="search" name="search" placeholder="Search...">
+            <button type="submit">Search</button>
+        </form>
+        <div>
+            <select id="sortDropdown" name="sort">
+                <option value="option1">Soonest upcoming</option>
+                <option value="option2">Newest added</option>
+            </select> 
+            <br>
+            <input type="date" id="startDate" name="startDate"> -
+            <input type="date" id="endDate" name="endDate">
+            <br>
+            <input type="time" id="startTime" name="startTime"> -
+            <input type="time" id="endTime" name="endTime">
+        </div>
+        <div>
+            <input type="checkbox" id="subscribed" name="subscribed" value="subscribed">
+            <label for="Subscribed">Subscribed</label>
+            <br>
+            <input type="checkbox" id="favorited" name="favorited" value="favorited">
+            <label for="favorited">Favorited</label>
+            <br>
+            <input type="checkbox" id="onCampus" name="onCampus" value="onCampus">
+            <label for="onCampus">On Campus</label>
+            <br>
+            <input type="checkbox" id="societyEvent" name="societyEvent" value="societyEvent">
+            <label for="societyEvent">Society Event</label>
+            <br>
+            <input type="checkbox" id="ticketedEvent" name="ticketedEvent" value="ticketedEvent">
+            <label for="ticketedEvent">Ticketed Event</label>
+        </div>
+    </div>
+    <p></p>
+</body>
+</html>
