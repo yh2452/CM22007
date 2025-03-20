@@ -1,0 +1,70 @@
+// Variables
+$primary-color: #FFFFFF
+$secondary-color: #202329
+$font-stack: "Noto Serif", "Georgia", serif
+
+// Base styles
+body
+  font-family: $font-stack
+  color: $secondary-color
+  margin: 1em
+  padding: 0
+
+// Header styles
+header
+  background-color: $secondary-color
+  padding: 20px
+
+h1
+    font-size: 3.12rem 
+    font-weight: 700
+    margin: 0.67em 0
+
+
+// Buttons
+@mixin button-style($bg-color, $text-color)
+  background-color: $bg-color
+  color: $text-color
+  padding: 10px 20px
+  border: none
+  border-radius: 5px
+
+button
+  @include button-style($primary-color, #fff)
+
+img
+  max-width: 100%
+  height: auto
+
+#profileContainer
+    display: flex
+    align-items: center
+    
+    #profilePic
+        width: 64px
+        height: 64px
+        margin: 1em 1em 0 0   
+        display: block
+
+    #profileText
+        margin-top: 1em
+        font-size: 1em
+
+#searchBox
+    width: 
+
+#filterContainer
+    display: flex
+    gap: 1em
+    margin: 1em 0
+
+    #filter
+        padding: 10px
+        border: 1px solid $secondary-color
+        border-radius: 5px
+        width: 100%
+
+    #filterButton
+        @include button-style($primary-color, #fff)
+        width: 100%
+

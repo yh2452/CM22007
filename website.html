@@ -4,18 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MySocials</title>
+    <link rel="stylesheet" href="styles.css">
     <script>
         function tristate(checkbox) {
-            if (!checkbox.checked && !checkbox.indeterminate) {
-                checkbox.checked = true;
-                checkbox.indeterminate = false;
-            } else if (checkbox.checked) {
-                checkbox.checked = false;
-                checkbox.indeterminate = true;
-            } else {
-                checkbox.checked = false;
-                checkbox.indeterminate = false;
-            }
+            // TODO: Implement tristate checkbox
         }
     </script>
 </head>
@@ -23,9 +15,19 @@
     <h1>MySocials</h1>
     <div>
         <form action="/search" method="GET">
-            <input type="search" name="search" placeholder="Search...">
+            <!-- 
+                TODO: Implement search, update search box according to currently applied filter options
+                I would implement it as such:
+                Each filter is a tag
+                Spaces between each tag
+                Exclusionary tags are prefixed with a dash (-favorited)
+                "soonest after:2024-12-31 before:2025-06-01 starts:1200 ends:2100 subscribed -favorited on_campus"
+            -->
+            <input id="searchBox" type="search" name="search" placeholder="Search...">
             <button type="submit">Search</button>
         </form>
+    </div>
+    <div id="filterContainer">
         <div>
             <select id="sortDropdown" name="sort">
                 <option value="option1">Soonest upcoming</option>
@@ -39,6 +41,7 @@
             <input type="time" id="endTime" name="endTime">
         </div>
         <div>
+            <!-- These checkboxes are implemented as REGULAR checkboxes! please edit them to be tristate when you can -->
             <input type="checkbox" id="subscribed" name="subscribed" value="subscribed">
             <label for="Subscribed">Subscribed</label>
             <br>
@@ -55,6 +58,13 @@
             <label for="ticketedEvent">Ticketed Event</label>
         </div>
     </div>
-    <p></p>
+    <div>
+        <!-- TODO: Implement the logic for grabbing all the societies and rendering them here, i've provided 1 example, it should be easy to scale up? -->
+        <div id="profileContainer">
+            <!-- You should be able to add custom profile pictures, i'm just going to use a placeholder-->
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture" id="profilePic">
+            <label for="profilePic" id="profileText">Bath Anime and Manga Society</label>
+        </div>
+    </div>
 </body>
 </html>
