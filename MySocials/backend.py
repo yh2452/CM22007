@@ -109,9 +109,9 @@ def getAttendedEvents(cursor, userID, flag):
     date = datetime.datetime.now()
     
     if flag:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.date < (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate < (?)", (userID, date))
     else:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.date >= (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate >= (?)", (userID, date))
 
     return cursor.fetchall()  # any result formatting?
 
