@@ -90,16 +90,18 @@ def getUserFromUsername(cursor, username):
 ### [ATTENDED TABLE] ###
 # An 'Attended' Table where we store (userID, eventID)
 
-def toggleAttend(cursor, userID, eventID):
+def toggleAttend(connection, cursor, userID, eventID):
     """
     Allows a user to mark or unmark an event for future attending.
     """
     cursor.execute("SELECT eventID FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
-        cursor.execute("INSERT INTO Attended VALUES (?,?)", (userID, eventID))
+        cursor.execute("INSERT INTO Attended VALUES (?,?)", (eventID, userID))
     else:
         cursor.execute("DELETE FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+    
+    connection.commit()
 
 def getAttendedEvents(cursor, userID, flag):
     """
@@ -415,7 +417,8 @@ def test_HashPasswords():
     assert checkHash(password, hashed) == True
 
 def test_Filtering():
-    filter = input("Enter a filter tag: ")
+    connection, cursor = get_db_conn_cursor()
+    filter = "On Campus"
     data = filterSocials(cursor, [filter])
     print(data)
 
@@ -425,10 +428,16 @@ def test_Profanity():
     assert sanitiseInput(goodText) == goodText
     assert sanitiseInput(badText) == None
 
+def test_ToggleAttendEvent():
+    connection, cursor = get_db_conn_cursor()
+    userID = 9
+    eventID = 1
+    toggleAttend(connection, cursor, userID, eventID)
+    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+    assert cursor.fetchone() is not None
 
-connection, cursor = get_db_conn_cursor()
+    toggleAttend(connection, cursor, userID, eventID)
+    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+    assert cursor.fetchone() is None
 #insert_passwords(connection, cursor) # inserts some fake passwords to the data
 
-print(test_HashPasswords())
-test_Filtering()
-print(test_Profanity())
