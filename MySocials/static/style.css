@@ -1,0 +1,71 @@
+body {
+  font-family: "Noto Serif", "Georgia", serif;
+  color: #202329;
+  margin: 1em;
+  padding: 0;
+}
+
+header {
+  background-color: #202329;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 3.12rem;
+  font-weight: 700;
+  margin: 0.67em 0;
+}
+
+button {
+  background-color: #FFFFFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+#profileContainer {
+  display: flex;
+  align-items: right;
+}
+#profileContainer #profilePic {
+  width: 64px;
+  height: 64px;
+  margin: 1em 1em 0 0;
+  display: block;
+}
+#profileContainer #profileText {
+  margin-top: 1em;
+  font-size: 1em;
+}
+
+#searchBox {
+  width: 10em;
+}
+
+#filterContainer {
+  display: flex;
+  gap: 1em;
+  margin: 1em 0;
+}
+#filterContainer #filter {
+  padding: 10px;
+  border: 1px solid #202329;
+  border-radius: 5px;
+  width: 100%;
+}
+#filterContainer #filterButton {
+  background-color: #FFFFFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+}
+
+/*# sourceMappingURL=style.css.map */
