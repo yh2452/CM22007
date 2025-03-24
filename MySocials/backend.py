@@ -5,6 +5,7 @@ import os
 import bcrypt
 from better_profanity import profanity
 import datetime
+import pytest 
 
 profanity.load_censor_words()
 
@@ -408,29 +409,26 @@ def getEventReports(cursor, eventID):
 #     connection.commit()
 #     connection.close()
 
-def testHashPasswords(connection, cursor):
-    cursor.execute("SELECT password FROM User")
-    storedPasswords = [row[0] for row in cursor.fetchall()] #returns tuple so you gotta change it
+def test_HashPasswords():
+    password = "securepass123"
+    hashed = hash(password)
+    assert checkHash(password, hashed) == True
 
-    print(storedPasswords)
-    passwords = ['securepass1', 'securePass1', 'securepass123', 'securePass234', 'Password123', 'Pass_word']
-    for loop in range (len(passwords)):
-        if checkHash(passwords[loop], storedPasswords[loop]):
-            print("True")
-        else:
-            print("False")
-
-    connection.commit()
-    connection.close()
-
-def testFiltering(connection, cursor):
+def test_Filtering():
     filter = input("Enter a filter tag: ")
     data = filterSocials(cursor, [filter])
     print(data)
+
+def test_Profanity():
+    goodText = "Anime Marathon Social"
+    badText = "The FUCK YOU Social"
+    assert sanitiseInput(goodText) == goodText
+    assert sanitiseInput(badText) == None
 
 
 connection, cursor = get_db_conn_cursor()
 #insert_passwords(connection, cursor) # inserts some fake passwords to the data
 
-#testHashPasswords(connection, cursor)
-testFiltering(connection, cursor)
+print(test_HashPasswords())
+test_Filtering()
+print(test_Profanity())
