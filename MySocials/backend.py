@@ -21,7 +21,7 @@ def SHA3(data, salt):
 
 def get_db_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    cursor = sqlite3.connect('database.db')
+    cursor = sqlite3.connect('table.db')
     return cursor
 
 '''
@@ -123,7 +123,7 @@ def getPinnedEvents(cursor, userID):
     return cursor.fetchall()  # any result formatting?
 
 ### [FOLLOWED TABLE] ###
-# A 'Followed' Table where we store (userID, societyID)
+# A 'Followed' Table where we store (userID, societyID, notificationFlag)
 
 def toggleFollow(cursor, userID, socID):
     """
@@ -140,8 +140,26 @@ def getFollowed(cursor, userID):
     """
     Returns all societies the user follows.
     """
-    cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=FOLLOWED.societyID WHERE Followed.userID = (?)", (userID,))
+    cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=Followed.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
+
+def toggleNotifs(cursor, userID, socID):
+    """
+    Toggles email notifications for a specific society.
+    """
+    cursor.execute("SELECT notificationFlag FROM Followed WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()[0][0]
+    if status:
+        cursor.execute("UPDATE Followed SET notificationFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    else:
+        cursor.execute("UPDATE Followed SET notificationFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+def getNotifEmails(cursor, socID):
+    """
+    Returns email addresses of all users who have notifications on for a specific society.
+    """
+    cursor.execute("SELECT User.email FROM User INNER JOIN Followed ON User.userID=Followed.userID WHERE Followed.societyID = (?) AND Followed.notificationFlag = 1", (socID,))
+    return cursor.fetchall() 
 
 ### [COMMITTEE TABLE] ###
 # A 'Committee' Table where we store (userID, societyID, adminFlag)
@@ -176,6 +194,13 @@ def toggleAdmin(cursor, userID, socID):
     else:
         cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
 
+def getAdminSocs(cursor, userID):
+    """
+    Retrieves all societies for which a user is administrator for.
+    """
+    cursor.execute("SELECT societyID FROM Committee WHERE userID = (?) AND adminFlag = 1", (userID,))
+    return cursor.fetchall()
+
 
 '''
 SOCIALS
@@ -207,29 +232,43 @@ def getSocID(cursor, name):
     cursor.execute ("SELECT societyID FROM Society WHERE societyName = ?", (name,))
     return cursor.fetchall()
 
-def addSocial (cursor, eventName, societyName, userID, eventDate, eventDescription, eventData):
+
+def addSocial(cursor, socID, userID, eventName, eventDate, eventDescription, eventData):
     """
     Allows a committee member to create a social
     """
-    # will also need to take in all the facts about the event as input e.g. the things that you'd filter for
-    # does this also need to get added to a society table
+    # will be linked to notifications
+    cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
 
-    eventID = getEventID(cursor, eventName)
-    socID = getSocID(cursor, societyName)
-    if eventID is None:
-        cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
-        return True
-    return False
-
-
-def deleteSocial(cursor, socID, userID):
+def editSocial(cursor, eventID, name, date, description, data):
     """
-    Allows committee members to delete a social
+    Allows a user to edit a social.
     """
-    # this will need to be linked to the whole notification thing
-    # what if the comittee member for whatever reason cannot access a device to delete the social, will we need to give other people permissions?
-    cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID = (?)", (userID, socID))
-    return
+    # will be linked to notifications
+    cursor.execute("UPDATE Event SET eventName = (?), eventDate = (?), eventDescription = (?), eventData = (?) WHERE eventID = (?)", (name, date, description, data, eventID))
+
+def deleteSocial(cursor, eventID):
+    """
+    Allows users to delete a social.
+    """
+    # will be linked to notifications
+    cursor.execute("DELETE FROM Event WHERE eventID = (?)", (eventID))
+
+def getAccessibleSocials(cursor, userID):
+    """
+    Presents all available events that the user can edit or delete, taking into account Committee Admin permissions
+    """
+    cursor.execute("SELECT eventID FROM Event WHERE userID = (?)", (userID,))
+    ownEvents = cursor.fetchall()
+
+    adminSocs = getAdminSocs(cursor, userID)
+    societyEvents = []
+    for socID in adminSocs:
+        cursor.execute("SELECT eventID FROM Event WHERE societyID = (?)", (socID,))
+        societyEvents += cursor.fetchall()
+    
+    return ownEvents + societyEvents
+    
 
 def getSocialData(cursor, socID, eventID, metric):
     """
@@ -246,7 +285,6 @@ def filterSocials (cursor, filters):
     Filters the socials that the user sees
     """
     # I guess filters will be an array? 
-    # does this even work???????
     if filters:
         query = "SELECT * FROM Event WHERE "
         keywords = []
