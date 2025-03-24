@@ -2,27 +2,42 @@ import sqlite3
 import datetime
 import hashlib
 import os
-# from profanity_check import predict
+import bcrypt
+from better_profanity import profanity
+import datetime
+import pytest 
 
-def SHA3(data, salt):
+profanity.load_censor_words()
+
+def hash(data):
     '''
-    Hashes a given input (password) with salt (username for now)
+    Hashes a given input (password) with salt 
     '''
-    #salt = os.urandom(16)
-    hash_object = hashlib.sha3_256(salt + data)
-    return salt.hex() + hash_object.hexdigest()  
+    salt = bcrypt.gensalt() # generates salt
+    hash_object = bcrypt.hashpw(data.encode(), salt) # creates hashed data
+    return hash_object
+
+def checkHash(data, hashed_data):
+    """
+    Checks the input data against the hashed data stored in the database
+    """
+    return bcrypt.checkpw(data.encode(), hashed_data)
 
 
-# def sanitise_input(data, max_length):
-#     sanitised = data.strip()[:max_length]
-#     if predict([sanitised]) == 1:
-#         return None
-#     return sanitised
+def sanitiseInput(data):
+    """
+    Checks if there is any profanity in any given data
+    """
+    if profanity.contains_profanity(data):
+        return None
+    return data
+    
 
-def get_db_cursor():
+def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    cursor = sqlite3.connect('database.db')
-    return cursor
+    connection = sqlite3.connect('table.db')
+    cursor = connection.cursor()
+    return connection, cursor
 
 '''
 USERS
@@ -75,16 +90,18 @@ def getUserFromUsername(cursor, username):
 ### [ATTENDED TABLE] ###
 # An 'Attended' Table where we store (userID, eventID)
 
-def toggleAttend(cursor, userID, eventID):
+def toggleAttend(connection, cursor, userID, eventID):
     """
     Allows a user to mark or unmark an event for future attending.
     """
     cursor.execute("SELECT eventID FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
-        cursor.execute("INSERT INTO Attended VALUES (?,?)", (userID, eventID))
+        cursor.execute("INSERT INTO Attended VALUES (?,?)", (eventID, userID))
     else:
         cursor.execute("DELETE FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+    
+    connection.commit()
 
 def getAttendedEvents(cursor, userID, flag):
     """
@@ -95,9 +112,9 @@ def getAttendedEvents(cursor, userID, flag):
     date = datetime.datetime.now()
     
     if flag:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.date < (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate < (?)", (userID, date))
     else:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.date >= (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate >= (?)", (userID, date))
 
     return cursor.fetchall()  # any result formatting?
 
@@ -123,7 +140,7 @@ def getPinnedEvents(cursor, userID):
     return cursor.fetchall()  # any result formatting?
 
 ### [FOLLOWED TABLE] ###
-# A 'Followed' Table where we store (userID, societyID)
+# A 'Followed' Table where we store (userID, societyID, notificationFlag)
 
 def toggleFollow(cursor, userID, socID):
     """
@@ -140,8 +157,26 @@ def getFollowed(cursor, userID):
     """
     Returns all societies the user follows.
     """
-    cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=FOLLOWED.societyID WHERE Followed.userID = (?)", (userID,))
+    cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=Followed.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
+
+def toggleNotifs(cursor, userID, socID):
+    """
+    Toggles email notifications for a specific society.
+    """
+    cursor.execute("SELECT notificationFlag FROM Followed WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    status = cursor.fetchall()[0][0]
+    if status:
+        cursor.execute("UPDATE Followed SET notificationFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    else:
+        cursor.execute("UPDATE Followed SET notificationFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+
+def getNotifEmails(cursor, socID):
+    """
+    Returns email addresses of all users who have notifications on for a specific society.
+    """
+    cursor.execute("SELECT User.email FROM User INNER JOIN Followed ON User.userID=Followed.userID WHERE Followed.societyID = (?) AND Followed.notificationFlag = 1", (socID,))
+    return cursor.fetchall() 
 
 ### [COMMITTEE TABLE] ###
 # A 'Committee' Table where we store (userID, societyID, adminFlag)
@@ -176,6 +211,13 @@ def toggleAdmin(cursor, userID, socID):
     else:
         cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
 
+def getAdminSocs(cursor, userID):
+    """
+    Retrieves all societies for which a user is administrator for.
+    """
+    cursor.execute("SELECT societyID FROM Committee WHERE userID = (?) AND adminFlag = 1", (userID,))
+    return cursor.fetchall()
+
 
 '''
 SOCIALS
@@ -207,29 +249,43 @@ def getSocID(cursor, name):
     cursor.execute ("SELECT societyID FROM Society WHERE societyName = ?", (name,))
     return cursor.fetchall()
 
-def addSocial (cursor, eventName, societyName, userID, eventDate, eventDescription, eventData):
+
+def addSocial(cursor, socID, userID, eventName, eventDate, eventDescription, eventData):
     """
     Allows a committee member to create a social
     """
-    # will also need to take in all the facts about the event as input e.g. the things that you'd filter for
-    # does this also need to get added to a society table
+    # will be linked to notifications
+    cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
 
-    eventID = getEventID(cursor, eventName)
-    socID = getSocID(cursor, societyName)
-    if eventID is None:
-        cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
-        return True
-    return False
-
-
-def deleteSocial(cursor, socID, userID):
+def editSocial(cursor, eventID, name, date, description, data):
     """
-    Allows committee members to delete a social
+    Allows a user to edit a social.
     """
-    # this will need to be linked to the whole notification thing
-    # what if the comittee member for whatever reason cannot access a device to delete the social, will we need to give other people permissions?
-    cursor.execute("DELETE FROM Event WHERE userID = (?) AND societyID = (?)", (userID, socID))
-    return
+    # will be linked to notifications
+    cursor.execute("UPDATE Event SET eventName = (?), eventDate = (?), eventDescription = (?), eventData = (?) WHERE eventID = (?)", (name, date, description, data, eventID))
+
+def deleteSocial(cursor, eventID):
+    """
+    Allows users to delete a social.
+    """
+    # will be linked to notifications
+    cursor.execute("DELETE FROM Event WHERE eventID = (?)", (eventID))
+
+def getAccessibleSocials(cursor, userID):
+    """
+    Presents all available events that the user can edit or delete, taking into account Committee Admin permissions
+    """
+    cursor.execute("SELECT eventID FROM Event WHERE userID = (?)", (userID,))
+    ownEvents = cursor.fetchall()
+
+    adminSocs = getAdminSocs(cursor, userID)
+    societyEvents = []
+    for socID in adminSocs:
+        cursor.execute("SELECT eventID FROM Event WHERE societyID = (?)", (socID,))
+        societyEvents += cursor.fetchall()
+    
+    return ownEvents + societyEvents
+    
 
 def getSocialData(cursor, socID, eventID, metric):
     """
@@ -246,19 +302,18 @@ def filterSocials (cursor, filters):
     Filters the socials that the user sees
     """
     # I guess filters will be an array? 
-    # does this even work???????
     if filters:
-        query = "SELECT * FROM Event WHERE "
+        query = "SELECT eventName FROM Event WHERE "
         keywords = []
         for loop in range (len(filters)):
             if loop == 0:
-                query += "eventDescription LIKE (?)"
+                query += "eventTags LIKE (?)"
             else:
-                query += " OR eventDescription LIKE (?)"
+                query += " OR eventTags LIKE (?)"
             keywords.extend([f"%{filters[loop]}%"])
         cursor.execute(query, keywords)
     else:
-        cursor.execute("SELECT * FROM Event")
+        cursor.execute("SELECT eventName FROM Event")
     return cursor.fetchall()
 
 
@@ -339,3 +394,50 @@ def getEventReports(cursor, eventID):
     """
     cursor.execute("SELECT reportData FROM Report WHERE eventID == (?)", (eventID,))
     return cursor.fetchall()  # any result formatting?
+
+
+# SOFTWARE TESTING
+
+# def insert_passwords(connection, cursor):
+#     users_data = [4,5,6,7,8,9]
+#     passwords = ['securepass1', 'securePass1', 'securepass123', 'securePass234', 'Password123', 'Pass_word']
+#     for loop in range (len(users_data)):
+#         cursor.execute("""
+#             UPDATE User
+#             SET password = ?
+#             WHERE UserID = ?
+#         """, (hash(passwords[loop]), users_data[loop])) 
+#     print("Done")
+#     connection.commit()
+#     connection.close()
+
+def test_HashPasswords():
+    password = "securepass123"
+    hashed = hash(password)
+    assert checkHash(password, hashed) == True
+
+def test_Filtering():
+    connection, cursor = get_db_conn_cursor()
+    filter = "On Campus"
+    data = filterSocials(cursor, [filter])
+    print(data)
+
+def test_Profanity():
+    goodText = "Anime Marathon Social"
+    badText = "The FUCK YOU Social"
+    assert sanitiseInput(goodText) == goodText
+    assert sanitiseInput(badText) == None
+
+def test_ToggleAttendEvent():
+    connection, cursor = get_db_conn_cursor()
+    userID = 9
+    eventID = 1
+    toggleAttend(connection, cursor, userID, eventID)
+    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+    assert cursor.fetchone() is not None
+
+    toggleAttend(connection, cursor, userID, eventID)
+    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+    assert cursor.fetchone() is None
+#insert_passwords(connection, cursor) # inserts some fake passwords to the data
+
