@@ -4,10 +4,11 @@ import hashlib
 import os
 import bcrypt
 from better_profanity import profanity
+import datetime
 
 profanity.load_censor_words()
 
-def hash(data, salt):
+def hash(data):
     '''
     Hashes a given input (password) with salt 
     '''
@@ -31,10 +32,11 @@ def sanitiseInput(data):
     return data
     
 
-def get_db_cursor():
+def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    cursor = sqlite3.connect('table.db')
-    return cursor
+    connection = sqlite3.connect('table.db')
+    cursor = connection.cursor()
+    return connection, cursor
 
 '''
 USERS
@@ -298,17 +300,17 @@ def filterSocials (cursor, filters):
     """
     # I guess filters will be an array? 
     if filters:
-        query = "SELECT * FROM Event WHERE "
+        query = "SELECT eventName FROM Event WHERE "
         keywords = []
         for loop in range (len(filters)):
             if loop == 0:
-                query += "eventDescription LIKE (?)"
+                query += "eventTags LIKE (?)"
             else:
-                query += " OR eventDescription LIKE (?)"
+                query += " OR eventTags LIKE (?)"
             keywords.extend([f"%{filters[loop]}%"])
         cursor.execute(query, keywords)
     else:
-        cursor.execute("SELECT * FROM Event")
+        cursor.execute("SELECT eventName FROM Event")
     return cursor.fetchall()
 
 
@@ -389,3 +391,46 @@ def getEventReports(cursor, eventID):
     """
     cursor.execute("SELECT reportData FROM Report WHERE eventID == (?)", (eventID,))
     return cursor.fetchall()  # any result formatting?
+
+
+# SOFTWARE TESTING
+
+# def insert_passwords(connection, cursor):
+#     users_data = [4,5,6,7,8,9]
+#     passwords = ['securepass1', 'securePass1', 'securepass123', 'securePass234', 'Password123', 'Pass_word']
+#     for loop in range (len(users_data)):
+#         cursor.execute("""
+#             UPDATE User
+#             SET password = ?
+#             WHERE UserID = ?
+#         """, (hash(passwords[loop]), users_data[loop])) 
+#     print("Done")
+#     connection.commit()
+#     connection.close()
+
+def testHashPasswords(connection, cursor):
+    cursor.execute("SELECT password FROM User")
+    storedPasswords = [row[0] for row in cursor.fetchall()] #returns tuple so you gotta change it
+
+    print(storedPasswords)
+    passwords = ['securepass1', 'securePass1', 'securepass123', 'securePass234', 'Password123', 'Pass_word']
+    for loop in range (len(passwords)):
+        if checkHash(passwords[loop], storedPasswords[loop]):
+            print("True")
+        else:
+            print("False")
+
+    connection.commit()
+    connection.close()
+
+def testFiltering(connection, cursor):
+    filter = input("Enter a filter tag: ")
+    data = filterSocials(cursor, [filter])
+    print(data)
+
+
+connection, cursor = get_db_conn_cursor()
+#insert_passwords(connection, cursor) # inserts some fake passwords to the data
+
+#testHashPasswords(connection, cursor)
+testFiltering(connection, cursor)
