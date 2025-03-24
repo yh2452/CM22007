@@ -2,22 +2,34 @@ import sqlite3
 import datetime
 import hashlib
 import os
-# from profanity_check import predict
+import bcrypt
+from better_profanity import profanity
 
-def SHA3(data, salt):
+profanity.load_censor_words()
+
+def hash(data, salt):
     '''
-    Hashes a given input (password) with salt (username for now)
+    Hashes a given input (password) with salt 
     '''
-    #salt = os.urandom(16)
-    hash_object = hashlib.sha3_256(salt + data)
-    return salt.hex() + hash_object.hexdigest()  
+    salt = bcrypt.gensalt() # generates salt
+    hash_object = bcrypt.hashpw(data.encode(), salt) # creates hashed data
+    return hash_object
+
+def checkHash(data, hashed_data):
+    """
+    Checks the input data against the hashed data stored in the database
+    """
+    return bcrypt.checkpw(data.encode(), hashed_data)
 
 
-# def sanitise_input(data, max_length):
-#     sanitised = data.strip()[:max_length]
-#     if predict([sanitised]) == 1:
-#         return None
-#     return sanitised
+def sanitiseInput(data):
+    """
+    Checks if there is any profanity in any given data
+    """
+    if profanity.contains_profanity(data):
+        return None
+    return data
+    
 
 def get_db_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
