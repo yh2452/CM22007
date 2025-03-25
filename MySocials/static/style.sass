@@ -1,0 +1,147 @@
+// Variables
+$white: #FFFFFF
+$black: #202329
+$blue: #002B56
+$yellow: #FFC500
+$pink: #DD2277
+$gray: #EAE9E5
+
+$font-stack: "Noto Serif", "Georgia", serif
+
+// Base styles
+body
+  font-family: $font-stack
+  color: $black
+  margin: 1em
+  padding: 0
+
+// Header styles
+header
+  background-color: $black
+  padding: 20px
+
+h1
+    font-size: 3.12rem 
+    font-weight: 700
+    margin: 0.67em 0
+
+
+// Buttons
+@mixin button-style($bg-color, $text-color)
+  background-color: $bg-color
+  color: $text-color
+  padding: 10px 20px
+  border: none
+  border-radius: 5px
+
+button
+  @include button-style($white, #fff)
+
+img
+  max-width: 100%
+  height: auto
+
+#everythingContainer
+  display: flex
+  gap: 1em
+
+.profileContainer
+    display: flex
+    align-items: right
+    
+    .profilePic
+        width: 64px
+        height: 64px
+        margin: 1em 1em 0 0   
+        display: block
+
+    .profileText
+        margin-top: 1em
+        font-size: 1em
+
+#eventsContainer
+  width: 65%
+
+  .profileContainer
+    width: 100%
+    display: flex
+    justify-content: flex-start
+    align-items: flex-end
+    position: relative
+
+    .profilePic
+      width: 64px
+      height: 64px
+      margin: 1em 1em 0 0   
+      display: block
+
+    .eventText
+      background-color: $blue
+      width: 100%
+      height: 100%
+      border-radius: 24px 24px 24px 0
+
+      h1 
+        color: $white
+        font-size: 1.5em
+        margin: 0.67em 0
+
+      h2
+        color: $white
+        font-size: 1em
+        margin: 0.67em 0
+
+      p
+        color: $white
+        font-size: 0.9em
+        margin: 0.67em 0
+
+#leftContainer
+    width: 25%
+    margin-right: 1em
+  
+    #searchBox
+      width: 100%
+
+#filterContainer
+    display: flex
+    gap: 1em
+    margin: 1em 0
+
+    #filter
+        padding: 10px
+        border: 1px solid $black
+        border-radius: 5px
+        width: 100%
+
+    #filterButton
+        @include button-style($white, #fff)
+        width: 100%
+
+#contentContainer
+    display: flex
+    flex-direction: column
+    flex-wrap: wrap
+    gap: 1em
+    margin-top: 1em
+
+    .contentCard
+        width: 30%
+        padding: 1em
+        border: 1px solid $black
+        border-radius: 5px
+        display: flex
+        flex-direction: column
+        gap: 1em
+
+        .contentImage
+            width: 100%
+            height: 200px
+            object-fit: cover
+
+        .contentText
+            font-size: 1em
+
+        .contentButton
+            @include button-style($white, #fff)
+            width: 100%

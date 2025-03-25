@@ -29,21 +29,11 @@ img {
   height: auto;
 }
 
-/* POSITIONING PAGE CONTENT */
-#contentContainer{
+#everythingContainer {
   display: flex;
   gap: 1em;
 }
 
-/* testing something -yusuf */
-/* #leftContainer{
-  border: 15px solid green;
-}
-#eventsContainer{
-  border: 15px solid green;
-} */
-
-/* ---- SOCIETIES/EVENTS LIST ----*/
 .profileContainer {
   display: flex;
   align-items: right;
@@ -54,33 +44,55 @@ img {
   margin: 1em 1em 0 0;
   display: block;
 }
-
-/* SOCIETIES */
-.profileContainer .societyName {
+.profileContainer .profileText {
   margin-top: 1em;
-  font-size: 1.5rem;
-}
-
-/* EVENTS */
-
-.eventText {
-  margin: 0;
   font-size: 1em;
 }
 
-.eventText h1 {
+#eventsContainer {
+  width: 65%;
+}
+#eventsContainer .profileContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  position: relative;
+}
+#eventsContainer .profileContainer .profilePic {
+  width: 64px;
+  height: 64px;
+  margin: 1em 1em 0 0;
+  display: block;
+}
+#eventsContainer .profileContainer .eventText {
+  background-color: #002B56;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px 24px 24px 0;
+}
+#eventsContainer .profileContainer .eventText h1 {
+  color: #FFFFFF;
   font-size: 1.5em;
+  margin: 0.67em 0;
+}
+#eventsContainer .profileContainer .eventText h2 {
+  color: #FFFFFF;
+  font-size: 1em;
+  margin: 0.67em 0;
+}
+#eventsContainer .profileContainer .eventText p {
+  color: #FFFFFF;
+  font-size: 0.9em;
+  margin: 0.67em 0;
 }
 
-.eventText h1, h2 {
-  font-weight: bold;
+#leftContainer {
+  width: 25%;
+  margin-right: 1em;
 }
-
-
-
-/* SEARCH + FILTERS */
-#searchBox {
-  width: 10em;
+#leftContainer #searchBox {
+  width: 100%;
 }
 
 #filterContainer {
@@ -103,4 +115,36 @@ img {
   width: 100%;
 }
 
-/*# sourceMappingURL=style.css.map */
+#contentContainer {
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 1em;
+}
+#contentContainer .contentCard {
+  width: 30%;
+  padding: 1em;
+  border: 1px solid #202329;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+#contentContainer .contentCard .contentImage {
+  width: 100%;
+  height: 200px;
+  -o-object-fit: cover;
+     object-fit: cover;
+}
+#contentContainer .contentCard .contentText {
+  font-size: 1em;
+}
+#contentContainer .contentCard .contentButton {
+  background-color: #FFFFFF;
+  color: #fff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  width: 100%;
+}/*# sourceMappingURL=style.css.map */
