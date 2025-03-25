@@ -72,6 +72,7 @@ def isUserDuplicate(cursor, username, email):
         return False
 
 def addUser(cursor, forename, surname, username, password, email):
+    # remember to hash the password - all you have to do is call the hash subroutine = hash(password)
     pass
 
 def removeUser(cursor):
