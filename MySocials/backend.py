@@ -88,8 +88,8 @@ def getUserFromUsername(cursor, username):
 
 
 
-### [ATTENDED TABLE] ###
-# An 'Attended' Table where we store (userID, eventID)
+### [ATTENDING TABLE] ###
+# An 'Attending' Table where we store (userID, eventID, notificationFlag)
 
 def toggleAttend(connection, cursor, userID, eventID):
     """
@@ -98,11 +98,30 @@ def toggleAttend(connection, cursor, userID, eventID):
     cursor.execute("SELECT eventID FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
-        cursor.execute("INSERT INTO Attended VALUES (?,?)", (eventID, userID))
+        cursor.execute("INSERT INTO Attended VALUES (?,?,?)", (userID, eventID, 0))
     else:
         cursor.execute("DELETE FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     
     connection.commit()
+
+def toggleAttendNotifs(cursor, userID, eventID):
+    """
+    Toggles email notifications for a specific event.
+    """
+    cursor.execute("SELECT notificationFlag FROM Attending WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+    status = cursor.fetchall()[0][0]
+    if status:
+        cursor.execute("UPDATE Attending SET notificationFlag = 0 WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+    else:
+        cursor.execute("UPDATE Attending SET notificationFlag = 1 WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+
+def getAttendNotifEmails(cursor, eventID):
+    """
+    Returns email addresses of all users who have notifications on for a specific event.
+    """
+    cursor.execute("SELECT User.email FROM User INNER JOIN Attending ON User.userID=Attending.userID WHERE Attending.eventID = (?) AND Attending.notificationFlag = 1", (eventID,))
+    return cursor.fetchall() 
+    
 
 def getAttendedEvents(cursor, userID, flag):
     """
@@ -161,7 +180,7 @@ def getFollowed(cursor, userID):
     cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=Followed.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
 
-def toggleNotifs(cursor, userID, socID):
+def toggleFollowNotifs(cursor, userID, socID):
     """
     Toggles email notifications for a specific society.
     """
@@ -172,7 +191,7 @@ def toggleNotifs(cursor, userID, socID):
     else:
         cursor.execute("UPDATE Followed SET notificationFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
 
-def getNotifEmails(cursor, socID):
+def getSocietyNotifEmails(cursor, socID):
     """
     Returns email addresses of all users who have notifications on for a specific society.
     """
