@@ -8,63 +8,87 @@
     <script>
         function tristate(checkbox) {
             // TODO: Implement tristate checkbox
+            // TODO (Yusuf): Do this but in flask lmao
         }
     </script>
 </head>
 <body>
-    <h1>MySocials</h1>
-    <div>
-        <form action="/search" method="GET">
-            <!-- 
-                TODO: Implement search, update search box according to currently applied filter options
-                I would implement it as such:
-                Each filter is a tag
-                Spaces between each tag
-                Exclusionary tags are prefixed with a dash (-favorited)
-                "soonest after:2024-12-31 before:2025-06-01 starts:1200 ends:2100 subscribed -favorited on_campus"
-            -->
-            <input id="searchBox" type="search" name="search" placeholder="Search...">
-            <button type="submit">Search</button>
+<h1>MySocials</h1>
+<div id="contentContainer">
+<!-- All of the main page content: ignores things such as the navbar -->
+
+    <div id="leftContainer">
+        <!-- This contains the search options + societies list -->
+        <form action="#" method="GET">
+            <div>
+                <!-- 
+                    TODO: Implement search, update search box according to currently applied filter options
+                    I would implement it as such:
+                    Each filter is a tag
+                    Spaces between each tag
+                    Exclusionary tags are prefixed with a dash (-favorited)
+                    "soonest after:2024-12-31 before:2025-06-01 starts:1200 ends:2100 subscribed -favorited on_campus"
+                -->
+                <input id="searchBox" type="search" name="search" placeholder="Search...">
+                <button type="submit">Search</button>
+            </div>
+            <div id="filterContainer">
+                <div>
+                    <select id="sortDropdown" name="sort">
+                        <option value="option1">Soonest upcoming</option>
+                        <option value="option2">Newest added</option>
+                    </select> 
+                    <br>
+                    <input type="date" id="startDate" name="startDate"> -
+                    <input type="date" id="endDate" name="endDate">
+                    <br>
+                    <input type="time" id="startTime" name="startTime"> -
+                    <input type="time" id="endTime" name="endTime">
+                </div>
+                <div>
+                    <!-- These checkboxes are implemented as REGULAR checkboxes! please edit them to be tristate when you can -->
+                    <input type="checkbox" id="subscribed" name="subscribed" value="subscribed">
+                    <label for="Subscribed">Subscribed</label>
+                    <br>
+                    <input type="checkbox" id="favorited" name="favorited" value="favorited">
+                    <label for="favorited">Favorited</label>
+                    <br>
+                    <input type="checkbox" id="onCampus" name="onCampus" value="onCampus">
+                    <label for="onCampus">On Campus</label>
+                    <br>
+                    <input type="checkbox" id="societyEvent" name="societyEvent" value="societyEvent">
+                    <label for="societyEvent">Society Event</label>
+                    <br>
+                    <input type="checkbox" id="ticketedEvent" name="ticketedEvent" value="ticketedEvent">
+                    <label for="ticketedEvent">Ticketed Event</label>
+                </div>
+            </div>
         </form>
-    </div>
-    <div id="filterContainer">
         <div>
-            <select id="sortDropdown" name="sort">
-                <option value="option1">Soonest upcoming</option>
-                <option value="option2">Newest added</option>
-            </select> 
-            <br>
-            <input type="date" id="startDate" name="startDate"> -
-            <input type="date" id="endDate" name="endDate">
-            <br>
-            <input type="time" id="startTime" name="startTime"> -
-            <input type="time" id="endTime" name="endTime">
-        </div>
-        <div>
-            <!-- These checkboxes are implemented as REGULAR checkboxes! please edit them to be tristate when you can -->
-            <input type="checkbox" id="subscribed" name="subscribed" value="subscribed">
-            <label for="Subscribed">Subscribed</label>
-            <br>
-            <input type="checkbox" id="favorited" name="favorited" value="favorited">
-            <label for="favorited">Favorited</label>
-            <br>
-            <input type="checkbox" id="onCampus" name="onCampus" value="onCampus">
-            <label for="onCampus">On Campus</label>
-            <br>
-            <input type="checkbox" id="societyEvent" name="societyEvent" value="societyEvent">
-            <label for="societyEvent">Society Event</label>
-            <br>
-            <input type="checkbox" id="ticketedEvent" name="ticketedEvent" value="ticketedEvent">
-            <label for="ticketedEvent">Ticketed Event</label>
+            {% for society in societies %}
+            <div class="profileContainer">
+                <!-- PLACEHOLDER IMAGE -->
+                <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture" class="profilePic">
+                <h2 class="societyName">{{ society["societyName"] }}</h2>
+            </div>
+            {% endfor %}
         </div>
     </div>
-    <div>
-        <!-- TODO: Implement the logic for grabbing all the societies and rendering them here, i've provided 1 example, it should be easy to scale up? -->
-        <div id="profileContainer">
-            <!-- You should be able to add custom profile pictures, i'm just going to use a placeholder-->
-            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture" id="profilePic">
-            <label for="profilePic" id="profileText">Bath Anime and Manga Society</label>
-        </div>
+    <div id="eventsContainer">
+        <!-- This contains the list of events -->
+         {% for event in events %}
+         <div class="profileContainer">
+            <!-- PLACEHOLDER IMAGE -->
+            <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture" class="profilePic">
+            <div class="eventText">
+                <h1>{{ event["eventName"] }}</h1>
+                <h2>{{ event["societyName"] }}</h2>
+                <h2>{{ event["eventDate"]  }}</h2>
+                <p>{{ event["eventDescription"] }}</p>
+            </div>
+         </div>
+         {% endfor %}
     </div>
+</div>  
 </body>
 </html>

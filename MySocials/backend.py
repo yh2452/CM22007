@@ -35,7 +35,7 @@ def sanitiseInput(data):
 
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    connection = sqlite3.connect('table.db')
+    connection = sqlite3.connect('MySocials/table.db')
     cursor = connection.cursor()
     return connection, cursor
 
@@ -287,7 +287,7 @@ def getAccessibleSocials(cursor, userID):
     return ownEvents + societyEvents
     
 
-def getSocialData(cursor, socID, eventID, metric):
+def getSocialData(cursor, socID, eventID, metric=None):
     """
     Allows data about a social to be found
     """
