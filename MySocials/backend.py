@@ -35,14 +35,16 @@ def sanitiseInput(data):
 
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    connection = sqlite3.connect('MySocials/table.db')
+    # for me (ollie), the commented line below that was originally there does not work.
+    # connection = sqlite3.connect('MySocials\table.db')
+    connection = sqlite3.connect('table.db')
     cursor = connection.cursor()
     return connection, cursor
 
 '''
 USERS
---> access socials a user has attended in the past
-    --> mark events as 'attended' once the event date has passed
+--> access socials a user has Attending in the past
+    --> mark events as 'Attending' once the event date has passed
     --> Calendar for future events user is planning to attend
 --> access socials a user is planning to attend
     --> mark events accordingly when users first select to 'attend' (similar for 'unattend')
@@ -95,15 +97,13 @@ def toggleAttend(connection, cursor, userID, eventID):
     """
     Allows a user to mark or unmark an event for future attending.
     """
-    cursor.execute("SELECT eventID FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+    cursor.execute("SELECT eventID FROM Attending WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
-        cursor.execute("INSERT INTO Attended VALUES (?,?,?)", (userID, eventID, 0))
+        cursor.execute("INSERT INTO Attending VALUES (?,?,?)", (eventID, userID, 0))
     else:
-        cursor.execute("DELETE FROM Attended WHERE userID = (?) AND eventID = (?)", (userID, eventID))
+        cursor.execute("DELETE FROM Attending WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     
-    connection.commit()
-
 def toggleAttendNotifs(cursor, userID, eventID):
     """
     Toggles email notifications for a specific event.
@@ -123,18 +123,18 @@ def getAttendNotifEmails(cursor, eventID):
     return cursor.fetchall() 
     
 
-def getAttendedEvents(cursor, userID, flag):
+def getAttendingEvents(cursor, userID, flag):
     """
-    Return all socials the user has attended in the past, or ones they are planning to attend.
+    Return all socials the user has Attending in the past, or ones they are planning to attend.
 
-    flag: TRUE = past attended events, FALSE = future events they plan to attend
+    flag: TRUE = past Attending events, FALSE = future events they plan to attend
     """
     date = datetime.datetime.now()
     
     if flag:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate < (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?) AND Event.eventDate < (?)", (userID, date))
     else:
-        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attended ON Event.eventID=Attended.eventID WHERE Attended.userID = (?) AND Event.eventDate >= (?)", (userID, date))
+        cursor.execute("SELECT Event.* FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?) AND Event.eventDate >= (?)", (userID, date))
 
     return cursor.fetchall()  # any result formatting?
 
@@ -156,22 +156,22 @@ def getPinnedEvents(cursor, userID):
     """
     Returns all events the user has pinned.
     """
-    cursor.execute("SELECT Event.* FROM Event INNER JOIN Pinned ON Event.eventID=Pinned.eventID WHERE Attended.userID = (?)", (userID,)) 
+    cursor.execute("SELECT Event.* FROM Event INNER JOIN Pinned ON Event.eventID=Pinned.eventID WHERE Attending.userID = (?)", (userID,)) 
     return cursor.fetchall()  # any result formatting?
 
 ### [FOLLOWED TABLE] ###
 # A 'Followed' Table where we store (userID, societyID, notificationFlag)
 
-def toggleFollow(cursor, userID, socID):
+def toggleFollow(cursor, userID, societyID):
     """
     Allows a user to follow or unfollow a society.
     """
-    cursor.execute("SELECT societyID FROM Followed WHERE userID = (?) AND societyID (?)", (userID, socID))
+    cursor.execute("SELECT societyID FROM Followed WHERE userID == (?) AND societyID == (?)", (userID, societyID))
     soc = cursor.fetchall()
     if not soc:
-        cursor.execute("INSERT INTO Followed VALUES (?,?)", (userID, socID))
+        cursor.execute("INSERT INTO Followed VALUES (?,?,?)", (userID, societyID, 0))
     else:
-        cursor.execute("DELETE FROM Followed WHERE userID = (?) AND societyID (?)", (userID, socID))
+        cursor.execute("DELETE FROM Followed WHERE userID == (?) AND societyID == (?)", (userID, societyID))
 
 def getFollowed(cursor, userID):
     """
@@ -180,56 +180,56 @@ def getFollowed(cursor, userID):
     cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=Followed.societyID WHERE Followed.userID = (?)", (userID,))
     return cursor.fetchall()  # any result formatting?
 
-def toggleFollowNotifs(cursor, userID, socID):
+def toggleFollowNotifs(cursor, userID, societyID):
     """
     Toggles email notifications for a specific society.
     """
-    cursor.execute("SELECT notificationFlag FROM Followed WHERE userID = (?) AND societyID = (?)", (userID, socID))
-    status = cursor.fetchall()[0][0]
+    cursor.execute("SELECT notificationFlag FROM Followed WHERE userID = (?) AND societyID = (?)", (userID, societyID))
+    status = cursor.fetchall()
     if status:
-        cursor.execute("UPDATE Followed SET notificationFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+        cursor.execute("UPDATE Followed SET notificationFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     else:
-        cursor.execute("UPDATE Followed SET notificationFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+        cursor.execute("UPDATE Followed SET notificationFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, societyID))
 
-def getSocietyNotifEmails(cursor, socID):
+def getSocietyNotifEmails(cursor, societyID):
     """
     Returns email addresses of all users who have notifications on for a specific society.
     """
-    cursor.execute("SELECT User.email FROM User INNER JOIN Followed ON User.userID=Followed.userID WHERE Followed.societyID = (?) AND Followed.notificationFlag = 1", (socID,))
+    cursor.execute("SELECT User.email FROM User INNER JOIN Followed ON User.userID=Followed.userID WHERE Followed.societyID = (?) AND Followed.notificationFlag = 1", (societyID,))
     return cursor.fetchall() 
 
 ### [COMMITTEE TABLE] ###
 # A 'Committee' Table where we store (userID, societyID, adminFlag)
 # 'admin' is a boolean determining the administrator status of the user within the society.
 
-def addMember(cursor, userID, socID):
+def addMember(cursor, userID, societyID):
     """
     Adds a user as a society committee member.
     """
-    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     status = cursor.fetchall()
     if not status:
-        cursor.execute("INSERT INTO Committee VALUES (?,?,?)", (userID, socID, 0))
+        cursor.execute("INSERT INTO Committee VALUES (?,?,?)", (userID, societyID, 0))
 
-def removeMember(cursor, userID, socID):
+def removeMember(cursor, userID, societyID):
     """
     Removes a user from society committee member status.
     """
-    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     status = cursor.fetchall()
     if not status:
-        cursor.execute("DELETE FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+        cursor.execute("DELETE FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
 
-def toggleAdmin(cursor, userID, socID):
+def toggleAdmin(cursor, userID, societyID):
     """
     Sets / unsets a user as a society administrator.
     """
-    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, socID))
+    cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     status = cursor.fetchall()[0][0]
     if status:
-        cursor.execute("UPDATE Committee SET adminFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+        cursor.execute("UPDATE Committee SET adminFlag = 0 WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     else:
-        cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, socID))
+        cursor.execute("UPDATE Committee SET adminFlag = 1 WHERE userID = (?) AND societyID = (?)", (userID, societyID))
 
 def getAdminSocs(cursor, userID):
     """
@@ -262,20 +262,20 @@ def getEventID(cursor, name):
     cursor.execute ("SELECT eventID FROM Event WHERE eventName = ?", (name,))
     return cursor.fetchall()
 
-def getSocID(cursor, name):
+def getsocietyID(cursor, name):
     """
-    Obtains the socID for backend use
+    Obtains the societyID for backend use
     """
     cursor.execute ("SELECT societyID FROM Society WHERE societyName = ?", (name,))
     return cursor.fetchall()
 
 
-def addSocial(cursor, socID, userID, eventName, eventDate, eventDescription, eventData):
+def addSocial(cursor, societyID, userID, eventName, eventDate, eventDescription, eventTags):
     """
     Allows a committee member to create a social
     """
     # will be linked to notifications
-    cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, eventData, averageRating, ratingCount) VALUES (?,?,?,?,?,?,?,?)", (socID, userID, eventName, eventDate, eventDescription, eventData, 0, 0))
+    cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, ratingCount, averageRating, eventTags) VALUES (?,?,?,?,?,?,?,?)", (societyID, userID, eventName, eventDate, eventDescription, 0.0 , 0, eventTags,))
 
 def editSocial(cursor, eventID, name, date, description, data):
     """
@@ -300,21 +300,21 @@ def getAccessibleSocials(cursor, userID):
 
     adminSocs = getAdminSocs(cursor, userID)
     societyEvents = []
-    for socID in adminSocs:
-        cursor.execute("SELECT eventID FROM Event WHERE societyID = (?)", (socID,))
+    for societyID in adminSocs:
+        cursor.execute("SELECT eventID FROM Event WHERE societyID = (?)", (societyID,))
         societyEvents += cursor.fetchall()
     
     return ownEvents + societyEvents
     
 
-def getSocialData(cursor, socID, eventID, metric=None):
+def getSocialData(cursor, societyID, eventID, metric=None):
     """
     Allows data about a social to be found
     """
     #### do we want to show eventDescription (tags) as well? - Jamie
     # what if they type in more than one metric?????????
     # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
-    cursor.execute("SELECT eventData FROM Event WHERE societyID = (?) AND eventID = (?)", (socID, eventID))
+    cursor.execute("SELECT eventData FROM Event WHERE societyID = (?) AND eventID = (?)", (societyID, eventID))
     return cursor.fetchall()
 
 def filterSocials (cursor, filters):
@@ -352,10 +352,10 @@ def addRating(cursor, eventID, rating):
 
     (*) User rating is a positive integer between 1 and 5.
     """
-    cursor.execute("SELECT averageRating, ratingCount FROM Raing WHERE eventID = (?)", (eventID,))
+    cursor.execute("SELECT averageRating, ratingCount FROM Event WHERE eventID = (?)", (eventID,))
     ratingStats = cursor.fetchall()
-    newCount = ratingStats[1] + 1
-    newAvg = round((ratingStats[0]*ratingStats[1] + rating) / newCount)
+    newCount = ratingStats[0][1] + 1
+    newAvg = round((ratingStats[0][0]*ratingStats[0][1] + rating) / newCount)
     cursor.execute("UPDATE Event SET averageRating = (?), ratingCount = (?) WHERE eventID = (?)", (newAvg, newCount, eventID))
 
 def getRating(cursor, eventID):
@@ -373,7 +373,7 @@ def addFeedback(cursor, eventID, feedbackData):
     """
     # format feedback data?
     # feedbackData = format(feedbackData)
-    cursor.execute("INSERT INTO Feedback VALUES (?,?)", (eventID, feedbackData))
+    cursor.execute("INSERT INTO Feedback (eventID, feedbackData) VALUES (?,?)", (eventID, feedbackData))
 
 def getFeedback(cursor, feedbackID):
     """
@@ -399,7 +399,7 @@ def addReport(cursor, eventID, reportData):
     """
     # format report data?
     # reportData = format(reportData)
-    cursor.execute("INSERT INTO Report VALUES (?,?)", (eventID, reportData))
+    cursor.execute("INSERT INTO Report (eventID, reportData) VALUES (?,?)", (eventID, reportData,))
 
 def getReport(cursor, reportID):
     """
@@ -435,12 +435,16 @@ def test_HashPasswords():
     password = "securepass123"
     hashed = hash(password)
     assert checkHash(password, hashed) == True
+    assert checkHash("securePass123", hashed) == False
 
 def test_Filtering():
-    connection, cursor = get_db_conn_cursor()
-    filter = "On Campus"
-    data = filterSocials(cursor, [filter])
-    print(data)
+    try:
+        connection, cursor = get_db_conn_cursor()
+        filter = "Off Campus"
+        data = filterSocials(cursor, [filter])
+        assert data[0][0] == "Pub Social"
+    finally:
+        connection.close()
 
 def test_Profanity():
     goodText = "Anime Marathon Social"
@@ -449,15 +453,174 @@ def test_Profanity():
     assert sanitiseInput(badText) == None
 
 def test_ToggleAttendEvent():
-    connection, cursor = get_db_conn_cursor()
-    userID = 9
-    eventID = 1
-    toggleAttend(connection, cursor, userID, eventID)
-    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
-    assert cursor.fetchone() is not None
+    try:
+        connection, cursor = get_db_conn_cursor()
+        userID = 9
+        eventID = 1
+        toggleAttend(connection, cursor, userID, eventID)
+        cursor.execute("SELECT * FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone() is not None
 
-    toggleAttend(connection, cursor, userID, eventID)
-    cursor.execute("SELECT * FROM Attended WHERE userID==(?) AND eventID==(?)", (userID, eventID))
-    assert cursor.fetchone() is None
+        toggleAttend(connection, cursor, userID, eventID)
+        cursor.execute("SELECT * FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone() is None
+    finally:
+        connection.close()
+
+def test_ToggleAttendNotifs():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        cursor.execute("SELECT * FROM Attending")
+        eventID, userID, flag = cursor.fetchone()
+    
+        toggleAttendNotifs(cursor, userID, eventID)
+        connection.commit()
+        cursor.execute("SELECT notificationFlag FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone()[0] is not flag
+     
+        toggleAttendNotifs(cursor, userID, eventID)
+        connection.commit()
+        cursor.execute("SELECT notificationFlag FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone()[0] is flag
+    finally:
+        connection.close()
+
+def test_ToggleFollowSociety():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        userID = 9
+        societyID = 101
+        
+        toggleFollow(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT * FROM Followed WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone() is not None
+
+        toggleFollow(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT * FROM Followed WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone() is None
+    finally:
+        connection.close()
+
+def test_ToggleFollowNotifs():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        cursor.execute("SELECT * FROM Followed")
+        userID, societyID, flag = cursor.fetchone()
+    
+        toggleFollowNotifs(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT notificationFlag FROM Followed WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone() is not flag
+     
+        toggleFollowNotifs(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT notificationFlag FROM Followed WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone()[0] is flag
+    finally:
+        connection.close()
+
+def test_GiveFeedback():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        eventID = 101
+        feedback = "This was a great event that I thoroughly enjoyed. Very welcome to newcomers."
+        not_feedback = "I didn't really enjoy this social"
+        addFeedback(cursor, eventID, feedback)
+        connection.commit()
+        cursor.execute("SELECT feedbackData FROM Feedback WHERE eventID == (?)", (eventID,))
+        result = cursor.fetchall()[0][0]
+        assert result == feedback
+        assert result != not_feedback
+        cursor.execute("DELETE FROM Feedback WHERE eventID == (?)", (eventID,))
+    finally:
+        connection.close()
+
+def test_FileReport():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        eventID = 101
+        report = "Social Host was extremely rude"
+        addReport(cursor, eventID, report)
+        connection.commit()
+        cursor.execute("SELECT reportData FROM Report WHERE eventID == (?)", (eventID,))
+        result = cursor.fetchall()[0][0]
+        assert result == report
+        cursor.execute("DELETE FROM Report WHERE eventID == (?)", (eventID,))
+    finally:
+        connection.close()
+
+def test_Rating():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        eventID = 4
+        rating = 3
+        cursor.execute("SELECT averageRating, ratingCount FROM Event WHERE eventID = (?)", (eventID,))
+        ratingStats = cursor.fetchall()
+        print(ratingStats)
+        expectedCount = ratingStats[0][1] + 1
+        expectedAvg = round((ratingStats[0][0]*ratingStats[0][1] + rating) / expectedCount)
+        addRating(cursor, eventID, rating)
+        connection.commit()
+        cursor.execute("SELECT averageRating, ratingCount FROM Event WHERE eventID = (?)", (eventID,))
+
+        ratingStats = cursor.fetchall()
+        currentCount = ratingStats[0][1]
+        currentAvg = ratingStats[0][0]
+        assert expectedAvg == currentAvg
+        assert currentCount == expectedCount
+    finally:
+        connection.close()
+
+def test_SeeAttendees():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        eventID = 101
+        attendees = 10
+        for loop in range (1, attendees + 1):
+            cursor.execute("INSERT INTO Attending (eventID, userID) VALUES (?, ?)", (eventID, loop,))
+        connection.commit()
+        registered_attendees = []
+        for loop in range (1, attendees + 1):
+            cursor.execute("SELECT userID FROM Attending WHERE eventID == (?)", (eventID,))
+            registered_attendees.append(cursor.fetchone)
+
+        cursor.execute("DELETE FROM Attending WHERE eventID = ?", (eventID,))
+        assert attendees == len(registered_attendees)
+        connection.commit()
+    finally:
+        connection.close()
+        
+def test_CreateSocial():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        eventID = 101
+        userID = 101
+        societyID = 101
+        eventName = "Pub Lecture"
+        eventDate = "2025-03-25 19:00"
+        eventDescription = "Come watch your favourite lecturers give a tipsy lecture!"
+        eventTags = "Off Campus, Fun, Socialising"
+        addSocial(cursor, societyID, userID, eventName, eventDate, eventDescription, eventTags)
+        connection.commit()
+        cursor.execute("SELECT * FROM Event WHERE societyID == (?) AND userID == (?) AND eventName == (?) AND eventDate == (?) AND eventDescription == (?) AND eventTags == (?)", (societyID, userID, eventName, eventDate, eventDescription, eventTags,))
+        result = cursor.fetchone()
+        assert result is not None
+    
+        cursor.execute("DELETE FROM Event WHERE eventID = ?", (result[0],))
+
+        connection.commit()
+    finally:
+        connection.close()
+
+
+
 #insert_passwords(connection, cursor) # inserts some fake passwords to the data
 
+# issues found
+# toggle attend added the event ID and user ID the wrong way around
+# when adding items to a table and assuming the table will autoincrement, the items actually need to be in a tuple
+# rating table doesn't actually exist
+# when reading in the rating values the indexes were actually wrong
+# 
