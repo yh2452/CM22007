@@ -93,7 +93,7 @@ def getUserFromUsername(cursor, username):
 ### [ATTENDING TABLE] ###
 # An 'Attending' Table where we store (userID, eventID, notificationFlag)
 
-def toggleAttend(connection, cursor, userID, eventID):
+def toggleAttend(cursor, userID, eventID):
     """
     Allows a user to mark or unmark an event for future attending.
     """
@@ -217,7 +217,7 @@ def removeMember(cursor, userID, societyID):
     """
     cursor.execute("SELECT adminFlag FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
     status = cursor.fetchall()
-    if not status:
+    if status:
         cursor.execute("DELETE FROM Committee WHERE userID = (?) AND societyID = (?)", (userID, societyID))
 
 def toggleAdmin(cursor, userID, societyID):
@@ -456,12 +456,12 @@ def test_ToggleAttendEvent():
     try:
         connection, cursor = get_db_conn_cursor()
         userID = 9
-        eventID = 1
-        toggleAttend(connection, cursor, userID, eventID)
+        eventID = 101
+        toggleAttend(cursor, userID, eventID)
         cursor.execute("SELECT * FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
         assert cursor.fetchone() is not None
 
-        toggleAttend(connection, cursor, userID, eventID)
+        toggleAttend(cursor, userID, eventID)
         cursor.execute("SELECT * FROM Attending WHERE userID==(?) AND eventID==(?)", (userID, eventID))
         assert cursor.fetchone() is None
     finally:
@@ -595,7 +595,6 @@ def test_SeeAttendees():
 def test_CreateSocial():
     try:
         connection, cursor = get_db_conn_cursor()
-        eventID = 101
         userID = 101
         societyID = 101
         eventName = "Pub Lecture"
@@ -614,8 +613,60 @@ def test_CreateSocial():
     finally:
         connection.close()
 
+def test_TogglePin():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        userID = 9
+        eventID = 101
+        togglePin(cursor, userID, eventID)
+        cursor.execute("SELECT * FROM Pinned WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone() is not None
 
+        togglePin(cursor, userID, eventID)
+        cursor.execute("SELECT * FROM Pinned WHERE userID==(?) AND eventID==(?)", (userID, eventID))
+        assert cursor.fetchone() is None
+    finally:
+        connection.close()
 
+def test_TestCommittee():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        userID = 101
+        societyID = 101
+        addMember(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT * FROM Committee WHERE societyID == (?) AND userID == (?)",(societyID,userID))
+        result = cursor.fetchone()
+        assert result is not None
+        removeMember(cursor, userID, societyID)
+        connection.commit()
+        cursor.execute("SELECT * FROM Committee WHERE societyID == (?) AND userID == (?)",(societyID,userID))
+        result = cursor.fetchone()
+        assert result is None
+    finally:
+        connection.close()
+
+def test_ToggleAdmin():
+    try:
+        connection, cursor = get_db_conn_cursor()
+        userID = 101
+        societyID = 101
+
+        addMember(cursor, userID, societyID)
+        connection.commit()
+
+        toggleAdmin(cursor, userID, societyID)
+        cursor.execute("SELECT * FROM Committee WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone()[2] is 1
+
+        toggleAdmin(cursor, userID, societyID)
+        cursor.execute("SELECT * FROM Committee WHERE userID==(?) AND societyID==(?)", (userID, societyID))
+        assert cursor.fetchone()[2] is 0
+
+        removeMember(cursor, userID, societyID)
+        connection.commit()
+    finally:
+        connection.close()
 #insert_passwords(connection, cursor) # inserts some fake passwords to the data
 
 # issues found
