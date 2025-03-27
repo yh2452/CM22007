@@ -21,18 +21,18 @@ header
   padding: 20px
 
 h1
-    font-size: 3.12rem 
-    font-weight: 700
-    margin: 0.67em 0
-
+  font-size: 3.12rem
+  font-weight: 700
+  margin: 0.67em 0
 
 // Buttons
 @mixin button-style($bg-color, $text-color)
-  background-color: $bg-color
-  color: $text-color
-  padding: 10px 20px
+  background-color: $blue
+  color: $white
+  padding: 3px 6%
   border: none
   border-radius: 5px
+  @content
 
 button
   @include button-style($white, #fff)
@@ -43,27 +43,46 @@ img
 
 #everythingContainer
   display: flex
+  flex-direction: row
   gap: 1em
 
-.profileContainer
+  #userContainer
     display: flex
-    align-items: right
+    flex-direction: column
+
+    .userPic
+      width: 64px
+      height: 64px
+      margin: 0 0 0 0.5em
     
-    .profilePic
-        width: 64px
-        height: 64px
-        margin: 1em 1em 0 0   
-        display: block
+    .settings
+      color: $blue
+      width: 64px
+      height: 64px
+      margin: 1em 0 0 0.5em
+
+.profileContainer
+  display: flex
+  align-items: right
+
+  .profilePic
+    width: 64px
+    height: 64px
+    margin: 1em 1em 0 0
+    display: block
 
     .profileText
-        margin-top: 1em
-        font-size: 1em
+      margin-top: 1em
+      font-size: 1em
 
 #eventsContainer
-  width: 65%
+  background-color: $gray
+  height: 100vh
+  padding: 0 0 0 2em
+  width: 67.5%
 
   .profileContainer
-    width: 100%
+    width: 91%
     display: flex
     justify-content: flex-start
     align-items: flex-end
@@ -72,7 +91,7 @@ img
     .profilePic
       width: 64px
       height: 64px
-      margin: 1em 1em 0 0   
+      margin: 1em 1em 0 0
       display: block
 
     .eventText
@@ -81,7 +100,7 @@ img
       height: 100%
       border-radius: 24px 24px 24px 0
 
-      h1 
+      h1
         color: $white
         font-size: 1.5em
         margin: 0.67em 0
@@ -97,51 +116,129 @@ img
         margin: 0.67em 0
 
 #leftContainer
-    width: 100%
-    margin-right: 1em
-  
-    #searchBox
-      width: 100%
+  width: 100%
+  margin-right: 1em
+
+  #searchBox
+    width: 75%
+    margin: 0 0 0.25em 0
+    border: 2px solid $blue
+    background-color: $blue
+    color: $white
 
 #filterContainer
-    display: flex
-    gap: 1em
-    margin: 0 0
+  display: flex
+  gap: 1em
+  margin: 0 0
 
-    #filter
-        padding: 0px
-        border: 1px solid $black
+  #sortDropdown
+    width: 100%
+    margin: 0 0 0.25em 0
+    background-color: $yellow
+    color: $black
+    border: 2px solid $yellow
+
+  input[type="date"],
+  input[type="time"]
+    width: 45.125%
+    background-color: $yellow
+    border: 2px solid $yellow
+    margin: 0 0 0.25em 0
+
+  input[type="checkbox"]
+    display: none
+
+    + label
+      position: relative
+      padding-left: 25px
+      cursor: pointer
+      font-size: 1em
+      color: $blue
+
+      &::before
+        content: ""
+        position: absolute
+        left: 0
+        top: 0
+        width: 14px
+        height: 14px
+        border: 2px solid $blue
+        background-color: $white
         border-radius: 5px
-        width: 100%
+        transition: opacity 0.2s ease-in-out
+
+      &::after
+        content: ""
+        position: absolute
+        left: 3px
+        top: -1px
+        font-size: 14px
+        font-weight: bold
+        opacity: 0
+        transition: opacity 0.2s ease-in-out
+
+  input[type="checkbox"]:checked + label::after
+    content: "✔"
+    opacity: 1
+
+  input[type="checkbox"]:indeterminate + label::after
+    left: 4.5px
+    top: -1px
+    font-weight: bold
+    letter-spacing: -2px
+    content: "--"
+    opacity: 1
+
+  input[type="checkbox"]:hover + label::before
+    background-color: lighten($yellow, 10%)
+
+  #filter
+    padding: 0px
+    border: 1px solid $black
+    border-radius: 5px
+    width: 100%
 
     #filterButton
-        @include button-style($white, #fff)
+      @include button-style($white, #fff)
         width: 100%
 
 #contentContainer
+  background-color: $gray
+  height: 100vh
+  display: flex
+  flex-direction: column
+  flex-wrap: wrap
+  gap: 0
+  margin-top: 0
+  padding: 0
+
+  .contentCard
+    width: 30%
+    padding: 1em
+    border: 1px solid $black
+    border-radius: 5px
     display: flex
     flex-direction: column
-    flex-wrap: wrap
-    gap: 1em
-    margin-top: 1em
 
-    .contentCard
-        width: 30%
-        padding: 1em
-        border: 1px solid $black
-        border-radius: 5px
-        display: flex
-        flex-direction: column
-        gap: 1em
+    .contentImage
+      width: 100%
+      height: 200px
+      object-fit: cover
 
-        .contentImage
-            width: 100%
-            height: 200px
-            object-fit: cover
-
-        .contentText
-            font-size: 1em
+      .contentText
+        font-size: 1em
 
         .contentButton
-            @include button-style($white, #fff)
+          @include button-style($white, #fff)
             width: 100%
+
+#dividingParent
+  display: flex
+  align-items: center
+  justify-content: center
+
+  #dividingLine
+    width: 90%
+    height: 4px
+    background-color: $pink
+    margin: 1em 0

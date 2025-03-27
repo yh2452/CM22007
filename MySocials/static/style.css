@@ -1,3 +1,4 @@
+@charset "UTF-8";
 body {
   font-family: "Noto Serif", "Georgia", serif;
   color: #202329;
@@ -17,9 +18,9 @@ h1 {
 }
 
 button {
-  background-color: #FFFFFF;
-  color: #fff;
-  padding: 10px 20px;
+  background-color: #002B56;
+  color: #FFFFFF;
+  padding: 3px 6%;
   border: none;
   border-radius: 5px;
 }
@@ -31,7 +32,23 @@ img {
 
 #everythingContainer {
   display: flex;
+  flex-direction: row;
   gap: 1em;
+}
+#everythingContainer #userContainer {
+  display: flex;
+  flex-direction: column;
+}
+#everythingContainer #userContainer .userPic {
+  width: 64px;
+  height: 64px;
+  margin: 0 0 0 0.5em;
+}
+#everythingContainer #userContainer .settings {
+  color: #002B56;
+  width: 64px;
+  height: 64px;
+  margin: 1em 0 0 0.5em;
 }
 
 .profileContainer {
@@ -44,16 +61,19 @@ img {
   margin: 1em 1em 0 0;
   display: block;
 }
-.profileContainer .profileText {
+.profileContainer .profilePic .profileText {
   margin-top: 1em;
   font-size: 1em;
 }
 
 #eventsContainer {
-  width: 65%;
+  background-color: #EAE9E5;
+  height: 100vh;
+  padding: 0 0 0 2em;
+  width: 67.5%;
 }
 #eventsContainer .profileContainer {
-  width: 100%;
+  width: 91%;
   display: flex;
   justify-content: flex-start;
   align-items: flex-end;
@@ -92,7 +112,11 @@ img {
   margin-right: 1em;
 }
 #leftContainer #searchBox {
-  width: 100%;
+  width: 75%;
+  margin: 0 0 0.25em 0;
+  border: 2px solid #002B56;
+  background-color: #002B56;
+  color: #FFFFFF;
 }
 
 #filterContainer {
@@ -100,27 +124,91 @@ img {
   gap: 1em;
   margin: 0 0;
 }
+#filterContainer #sortDropdown {
+  width: 100%;
+  margin: 0 0 0.25em 0;
+  background-color: #FFC500;
+  color: #202329;
+  border: 2px solid #FFC500;
+}
+#filterContainer input[type=date],
+#filterContainer input[type=time] {
+  width: 45.125%;
+  background-color: #FFC500;
+  border: 2px solid #FFC500;
+  margin: 0 0 0.25em 0;
+}
+#filterContainer input[type=checkbox] {
+  display: none;
+}
+#filterContainer input[type=checkbox] + label {
+  position: relative;
+  padding-left: 25px;
+  cursor: pointer;
+  font-size: 1em;
+  color: #002B56;
+}
+#filterContainer input[type=checkbox] + label::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #002B56;
+  background-color: #FFFFFF;
+  border-radius: 5px;
+  transition: opacity 0.2s ease-in-out;
+}
+#filterContainer input[type=checkbox] + label::after {
+  content: "";
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  font-size: 14px;
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+#filterContainer input[type=checkbox]:checked + label::after {
+  content: "✔";
+  opacity: 1;
+}
+#filterContainer input[type=checkbox]:indeterminate + label::after {
+  left: 4.5px;
+  top: -1px;
+  font-weight: bold;
+  letter-spacing: -2px;
+  content: "--";
+  opacity: 1;
+}
+#filterContainer input[type=checkbox]:hover + label::before {
+  background-color: #ffd133;
+}
 #filterContainer #filter {
   padding: 0px;
   border: 1px solid #202329;
   border-radius: 5px;
   width: 100%;
 }
-#filterContainer #filterButton {
-  background-color: #FFFFFF;
-  color: #fff;
-  padding: 10px 20px;
+#filterContainer #filter #filterButton {
+  background-color: #002B56;
+  color: #FFFFFF;
+  padding: 3px 6%;
   border: none;
   border-radius: 5px;
   width: 100%;
 }
 
 #contentContainer {
+  background-color: #EAE9E5;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  gap: 1em;
-  margin-top: 1em;
+  gap: 0;
+  margin-top: 0;
+  padding: 0;
 }
 #contentContainer .contentCard {
   width: 30%;
@@ -129,7 +217,6 @@ img {
   border-radius: 5px;
   display: flex;
   flex-direction: column;
-  gap: 1em;
 }
 #contentContainer .contentCard .contentImage {
   width: 100%;
@@ -137,14 +224,26 @@ img {
   -o-object-fit: cover;
      object-fit: cover;
 }
-#contentContainer .contentCard .contentText {
+#contentContainer .contentCard .contentImage .contentText {
   font-size: 1em;
 }
-#contentContainer .contentCard .contentButton {
-  background-color: #FFFFFF;
-  color: #fff;
-  padding: 10px 20px;
+#contentContainer .contentCard .contentImage .contentText .contentButton {
+  background-color: #002B56;
+  color: #FFFFFF;
+  padding: 3px 6%;
   border: none;
   border-radius: 5px;
   width: 100%;
+}
+
+#dividingParent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#dividingParent #dividingLine {
+  width: 90%;
+  height: 4px;
+  background-color: #DD2277;
+  margin: 1em 0;
 }/*# sourceMappingURL=style.css.map */
