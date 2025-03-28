@@ -5,9 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}{% endblock %} - MySocials</title>
     <!-- <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-<nav>
+<!-- <nav>
     <h1>MySocials</h1>
     <ul>
         {% if g.user %}
@@ -18,11 +19,23 @@
             <li><a href=" {{ url_for('auth.login') }} "></a>Log In</li>
         {% endif %}
     </ul>
+</nav> -->
+<nav>
+    <h2>MySocials</h2>
+    <ul>
+        {% if g.user %}
+            <li><span>{{ g.user['username']}}</span></li>
+            <!-- <li><a href="{{ url_for('auth.logout') }}"></a>Log Out</li>-->
+        {% else %}
+            <li><a href="{{ url_for('auth.register') }}" >Register</a></li>
+            <li><a href=" {{ url_for('auth.login') }} ">Log In</a></li>
+        {% endif %}
+    </ul>
 </nav>
 <section class = "content">
-    <header>
+    <!-- <header>
         {% block header %}{% endblock %}
-    </header>
+    </header> -->
     {% for message in get_flashed_messages() %}
         <div class="flash">{{ message }}</div>
     {% endfor %}

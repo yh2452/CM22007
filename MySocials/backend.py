@@ -36,8 +36,8 @@ def sanitiseInput(data):
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
     # for me (ollie), the commented line below that was originally there does not work.
-    # connection = sqlite3.connect('MySocials\table.db')
-    connection = sqlite3.connect('table.db')
+    connection = sqlite3.connect('MySocials/table.db')
+    #connection = sqlite3.connect('table.db')
     cursor = connection.cursor()
     return connection, cursor
 
@@ -75,7 +75,9 @@ def isUserDuplicate(cursor, username, email):
 
 def addUser(cursor, forename, surname, username, password, email):
     # remember to hash the password - all you have to do is call the hash subroutine = hash(password)
-    pass
+    password = hash(password)
+    cursor.execute("INSERT INTO User (username, password, forename, surname, email) VALUES (?,?,?,?,?)", (username, password, forename, surname, email))
+    print(f"User {username} successfully registered.")
 
 def removeUser(cursor):
     pass
@@ -84,7 +86,7 @@ def getUserFromUsername(cursor, username):
     """
     Checks to see if a given User exists from username
     """
-    cursor.execute("SELECT * FROM User WHERE username = (?)", (username))
+    cursor.execute("SELECT * FROM User WHERE username = (?)", (username,))
     user = cursor.fetchone()
     return user
 

@@ -1,23 +1,28 @@
 {% extends 'base.html' %}
 
-{% block header %}
+<!-- {% block header %}
     <h1>{% block title %}Register{% endblock %}</h1>
-{% endblock %}
+{% endblock %} -->
 
 {% block content %}
-    <form method="post">
-        <label for="Forename">Forename(s)</label>
-        <input name="Forename" id="Forename" required>
-        <label for="Surname">Surname(s)</label>
-        <input name="Surname" id="Surname" required>
-        <label for="Username">Username</label>
-        <input name="Username" id="Username" required>
-        <label for="Email">Email Address</label>
-        <input name="Email" id="Email" required>
-        <label for="Password">Password</label>
-        <input name="Password" id="Password" required>
-        <label for="Confirm Password">Confirm Password</label>
-        <input name="Confirm Password" id="Confirm Password" required>
-        <input type="submit" value="Register"
-    </form>
+<div class="formPage">
+
+    <div class="formContainer">
+        <h1>Sign Up</h1>
+        <form class="registerForm" method="post">
+            <input type="text" name="Forename" placeholder="Forename" required>
+            <input type="text" name="Surname" placeholder="Surname" required>
+            <input type="text" name="Username" placeholder="Username" required>
+            <input type="email" name="Email" placeholder="Email" required>
+            <input type="password" name="Password" placeholder="Password" required>
+            <input type="password" name="Confirm Password" placeholder="Confirm Password" required>
+            <input type="submit" value="Register">
+        </form>
+        
+        <div class="loginLink">
+            <p>Already have an account? <a href=" {{ url_for('auth.login') }} ">Log In</a></p>
+        </div>
+
+    </div>
+</div>
 {% endblock %}

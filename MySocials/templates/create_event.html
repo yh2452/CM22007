@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+<!-- Page where socials/events are created -->
+
+{% block content %}
+
+<form method="post">
+    <label for="title">Event Name</label>
+    <input name="title" id="title" required>
+    <br>
+    <select id="societyDropdown" name="societyDropdown">
+        <option value="0">Non-SU Event</option>
+        {% for society in societies %}
+        <option value="{{ society['societyID'] }}">{{ society["societyName"] }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for="location">Location</label>
+    <input name="location" id="location" required>
+    <br>
+    <label for="date">Date</label>
+    <input name="date" id="date" required>
+    <br>
+    <label for="description">Description</label> 
+    <textarea name="description" id="description" required></textarea>
+    <input type="submit" value="Save">
+</form>
+
+{% endblock %}

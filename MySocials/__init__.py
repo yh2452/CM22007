@@ -10,7 +10,7 @@ from .routes import main as main_bp
 def create_app():
     app =  Flask(__name__)
     
-    app.config['SECRET KEY'] = 'secret-key-goes-here'
+    app.config['SECRET_KEY'] = 'dev'
     
     # load blueprints
     app.register_blueprint(auth_bp)

@@ -2,8 +2,9 @@
 Non-authentication routes (i.e. home page, settings, etc.)
 """
 import sqlite3
-from flask import Blueprint, render_template, redirect, url_for, request
+from flask import Blueprint, render_template, redirect, url_for, request, g
 from .backend import *
+from .auth import login_required
 
 main = Blueprint('main', __name__)
 
@@ -62,17 +63,25 @@ def getAllSocieties(cursor):
     return values
 
 
-# @main.route("/search", methods=["POST", "GET"])
-# def search():
-#     filters = {}
-#     if request.method == 'GET':
-#         for field in request.args:
-#             # If the filter/field has been filled, add it to the dictionary
-#             if request.args[field]:
-#                 filters[field] = request.args[field]
-#     return redirect(url_for("main.index",filters=filters))
+# CREATE EVENT 
+@main.route("/create", methods=["POST", "GET"])
+@login_required
+def create():
+    # Function for creating events
+    if request.method == 'POST':
+        title = request.form['title']
+        socID = request.form['societyDropdown']
+        location = request.form['location']
+        date = request.form["date"]
+        description = request.form["description"]
     
-
+    conn, cursor = get_db_conn_cursor()
+    cursor.row_factory = sqlite3.Row
+    # Gets the societies the user has admin permissions for
+    cursor.execute("SELECT * FROM Committee INNER JOIN Society WHERE Committee.userID = (?) AND Society.societyID = Committee.societyID AND Committee.adminFlag = 1", (g.user["userID"],))
+    user_societies = cursor.fetchall()
+    
+    return render_template("create_event.html", societies=user_societies)
 
 # SETTINGS
 @main.route("/settings")
