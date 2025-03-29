@@ -8,25 +8,16 @@
     <link rel="stylesheet" href="../static/style.css">
 </head>
 <body>
-<!-- <nav>
-    <h1>MySocials</h1>
-    <ul>
-        {% if g.user %}
-            <li><span>{{ g.user['username'] }}</span></li>
-            <li><a href="{{ url_for('auth.logout') }}"></a>Log Out</li>
-        {% else %}
-            <li><a href="{{ url_for('auth.register') }}" ></a>Register</li>
-            <li><a href=" {{ url_for('auth.login') }} "></a>Log In</li>
-        {% endif %}
-    </ul>
-</nav> -->
+
 <nav>
-    <h2>MySocials</h2>
+    <h2><a id="navLogo" href="{{ url_for('main.index') }}">MySocials</a></h2>
     <ul>
         {% if g.user %}
+            <li><a href="{{ url_for('main.create') }}">Create Event</a></li>
             <li><span>{{ g.user['username']}}</span></li>
-            <!-- <li><a href="{{ url_for('auth.logout') }}"></a>Log Out</li>-->
+            <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
         {% else %}
+            <li><a href="{{ url_for('main.create') }}">Create Event</a></li>
             <li><a href="{{ url_for('auth.register') }}" >Register</a></li>
             <li><a href=" {{ url_for('auth.login') }} ">Log In</a></li>
         {% endif %}
