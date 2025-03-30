@@ -68,15 +68,19 @@ def getAllSocieties(cursor):
 @login_required
 def create():
     # Function for creating events
+    conn, cursor = get_db_conn_cursor()
+    cursor.row_factory = sqlite3.Row
+    
     if request.method == 'POST':
         title = request.form['title']
         socID = request.form['societyDropdown']
         location = request.form['location']
         date = request.form["date"]
         description = request.form["description"]
+        tags = request.form["tags"]
+        
+        addSocial(cursor, socID, g.user["userID"], title, date, description, tags)
     
-    conn, cursor = get_db_conn_cursor()
-    cursor.row_factory = sqlite3.Row
     # Gets the societies the user has admin permissions for
     cursor.execute("SELECT * FROM Committee INNER JOIN Society WHERE Committee.userID = (?) AND Society.societyID = Committee.societyID AND Committee.adminFlag = 1", (g.user["userID"],))
     user_societies = cursor.fetchall()
