@@ -2,7 +2,7 @@
 Non-authentication routes (i.e. home page, settings, etc.)
 """
 import sqlite3
-from flask import Blueprint, render_template, redirect, url_for, request, g
+from flask import Blueprint, render_template, redirect, url_for, request, g, session
 from .backend import *
 from .auth import login_required
 
@@ -49,9 +49,14 @@ def getAllEvents(cursor, filters):
                 endDateTime = f"{filters['endDate']} 23:59"
             filter_queries.append(f"Event.eventDate <= '{endDateTime}'")
     
+    # SOCIETY SELECTION
+    if "socID" in session:
+        if session["socID"] != -1:
+            filter_queries.append(f"Society.societyID = {session['socID']}")
+    
     if len(filter_queries) > 0:
         query = query + ' WHERE ' + ' AND '.join(filter_queries)
-        print(query)
+        print(f"Selecting events, query: {query}")
           
     cursor.execute(query)
     values = cursor.fetchall()
@@ -61,6 +66,21 @@ def getAllSocieties(cursor):
     cursor.execute("SELECT * FROM Society")
     values = cursor.fetchall()
     return values
+
+# REDIRECT FOR FILTERING BY SOCIETY 
+@main.route("/society/<int:id>")
+def filter_society(id):
+    # filters the shown events on home page by society
+    if "socID" in session:
+        if session["socID"] == id:
+            # If the same one is selected again, remove it entirely 
+            session["socID"] = -1
+            print(f"Current Selected Society ID is: {session['socID']}")
+            return redirect(url_for('main.index'))
+        
+    session["socID"] = id
+    print(f"Current Selected Society ID is: {session['socID']}")
+    return redirect(url_for('main.index'))
 
 
 # CREATE EVENT 

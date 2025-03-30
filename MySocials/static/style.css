@@ -87,6 +87,16 @@ nav a{
   display: flex;
   align-items: right;
 }
+
+#selectedProfile {
+  background-color: cadetblue;
+}
+
+.profileContainer a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
 .profileContainer .profilePic {
   width: 64px;
   height: 64px;
