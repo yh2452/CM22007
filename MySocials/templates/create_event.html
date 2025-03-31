@@ -9,29 +9,36 @@
 
 {% block content %}
 
-<form method="post">
-    <label for="title">Event Name</label>
-    <input name="title" id="title" required>
-    <br>
-    <select id="societyDropdown" name="societyDropdown">
-        <option value="0">Non-SU Event</option>
-        {% for society in societies %}
-        <option value="{{ society['societyID'] }}">{{ society["societyName"] }}</option>
-        {% endfor %}
-    </select>
-    <br>
-    <label for="location">Location</label>
-    <input name="location" id="location" required>
-    <br>
-    <label for="date">Date & Time</label>
-    <input type="datetime" name="date" id="date" required>
-    <br>
-    <label for="description">Description</label> 
-    <textarea name="description" id="description" required></textarea>
-    <br>
-    <label for="tags">Event Tags</label>
-    <input name="tags" id="tags" required>
-    <input type="submit" value="Save">
-</form>
+<div id="createEventContainer">
+    <div id="topBlue">
+    </div>
+    <div id="createEventBox">
+        <form method="post">
+            <label for="title">Event Name</label>
+            <input name="title" id="title" required>
+            <br>
+            <select id="societyDropdown" name="societyDropdown">
+                <option value="0">Non-SU Event</option>
+                {% for society in societies %}
+                <option value="{{ society['societyID'] }}">{{ society["societyName"] }}</option>
+                {% endfor %}
+            </select>
+            <br>
+            <label for="location">Location</label>
+            <input name="location" id="location" required>
+            <br>
+            <label for="date">Date & Time</label>
+            <input type="datetime" name="date" id="date" required>
+            <br>
+            <label for="description">Description</label> 
+            <textarea name="description" id="description" required></textarea>
+            <br>
+            <label for="tags">Event Tags</label>
+            <input name="tags" id="tags" required>
+            <input type="submit" value="Save">
+        </form>
+    </div>
+</div>
+
 
 {% endblock %}
