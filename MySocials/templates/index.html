@@ -8,24 +8,22 @@
     <link rel="stylesheet" href="../static/style.css">
     <script src="../static/script.js" defer></script>
 </head>
+
 <body>
-<nav>
-    <h2>MySocials</h2>
-    <ul>
-        {% if g.user %}
+    <nav>
+        <h2>MySocials</h2>
+        <ul>
+            {% if g.user %}
             <li><a href="{{ url_for('main.create') }}">Create Event</a></li>
             <li><span>{{ g.user['username']}}</span></li>
             <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
-        {% else %}
+            {% else %}
             <li><a href="{{ url_for('main.create') }}">Create Event</a></li>
-            <li><a href="{{ url_for('auth.register') }}" >Register</a></li>
+            <li><a href="{{ url_for('auth.register') }}">Register</a></li>
             <li><a href=" {{ url_for('auth.login') }} ">Log In</a></li>
-        {% endif %}
-    </ul>
-</nav>
-
-
-
+            {% endif %}
+        </ul>
+    </nav>
     <div id="everythingContainer">
         <div id="contentContainer">
             <!-- <h1>MySocials</h1> -->
@@ -109,7 +107,7 @@
             </div>
             {% endfor %}
         </div>
-        <div id = "userContainer">
+        <div id="userContainer">
             <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="User Profile Picture" class="userPic">
             <a href="settings.html" class="login">
                 <img src="https://cdn-icons-png.flaticon.com/512/3524/3524659.png" alt="Settings" class="settings">
