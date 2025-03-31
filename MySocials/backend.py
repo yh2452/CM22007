@@ -23,15 +23,14 @@ def checkHash(data, hashed_data):
     """
     return bcrypt.checkpw(data.encode(), hashed_data)
 
-
-def sanitiseInput(data):
+def isSanitised(*argv):
     """
-    Checks if there is any profanity in any given data
+    Checks if there is any profanity in any given data.
     """
-    if profanity.contains_profanity(data):
-        return None
-    return data
-    
+    for data in argv:
+        if profanity.contains_profanity(data):
+            return False
+    return True
 
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
@@ -277,14 +276,16 @@ def addSocial(cursor, societyID, userID, eventName, eventDate, eventDescription,
     Allows a committee member to create a social
     """
     # will be linked to notifications
-    cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, ratingCount, averageRating, eventTags) VALUES (?,?,?,?,?,?,?,?)", (societyID, userID, eventName, eventDate, eventDescription, 0.0 , 0, eventTags,))
+    if isSanitised(eventName, eventDescription):
+        cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, ratingCount, averageRating, eventTags) VALUES (?,?,?,?,?,?,?,?)", (societyID, userID, eventName, eventDate, eventDescription, 0.0 , 0, eventTags,))
 
 def editSocial(cursor, eventID, name, date, description, data):
     """
     Allows a user to edit a social.
     """
     # will be linked to notifications
-    cursor.execute("UPDATE Event SET eventName = (?), eventDate = (?), eventDescription = (?), eventData = (?) WHERE eventID = (?)", (name, date, description, data, eventID))
+    if isSanitised(name, description):
+        cursor.execute("UPDATE Event SET eventName = (?), eventDate = (?), eventDescription = (?), eventData = (?) WHERE eventID = (?)", (name, date, description, data, eventID))
 
 def deleteSocial(cursor, eventID):
     """

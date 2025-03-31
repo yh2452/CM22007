@@ -10,10 +10,10 @@
 </head>
 
 <body>
-    <nav>
-        <h2>MySocials</h2>
-        <ul>
-            {% if g.user %}
+<nav>
+    <h2><a id="navLogo" href="{{ url_for('main.index') }}">MySocials</a></h2>
+    <ul>
+        {% if g.user %}
             <li><a href="{{ url_for('main.create') }}">Create Event</a></li>
             <li><span>{{ g.user['username']}}</span></li>
             <li><a href="{{ url_for('auth.logout') }}">Log Out</a></li>
@@ -41,7 +41,7 @@
                     Exclusionary tags are prefixed with a dash (-favorited)
                     "soonest after:2024-12-31 before:2025-06-01 starts:1200 ends:2100 subscribed -favorited on_campus"
                 -->
-                        <input id="searchBox" type="search" name="search" placeholder="Search...">
+                        <input id="searchBox" type="search" name="search" value = "{{ request.args['search'] }}" placeholder="Search...">
                         <button type="submit">Search</button>
                     </div>
                     <div id="filterContainer">
@@ -51,11 +51,11 @@
                                 <option value="option2">Newest added</option>
                             </select>
                             <br>
-                            <input type="date" id="startDate" name="startDate"> - <input type="date" id="endDate"
-                                name="endDate">
+                            <input type="date" id="startDate" name="startDate" value = "{{ request.args['startDate'] }}"> - 
+                            <input type="date" id="endDate" value = "{{ request.args['endDate'] }}" name="endDate">
                             <br>
-                            <input type="time" id="startTime" name="startTime"> - <input type="time" id="endTime"
-                                name="endTime">
+                            <input type="time" id="startTime" value = "{{ request.args['startTime'] }}" name="startTime"> - 
+                            <input type="time" id="endTime" value = "{{ request.args['endTime'] }}" name="endTime">
                         </div>
                         <div>
                             <!-- These checkboxes are implemented as REGULAR checkboxes! please edit them to be tristate when you can -->
@@ -81,12 +81,15 @@
                 </div>
                 <div>
                     {% for society in societies %}
-                    <div class="profileContainer">
+                    <div class="profileContainer" {% if session["socID"] == society["societyID"] %} id="selectedProfile" {% endif %}>
                         <!-- PLACEHOLDER IMAGE -->
                         <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture"
                             class="profilePic">
-                        <h2 class="societyName">{{ society["societyName"] }}</h2>
+                        <a href="{{ url_for('main.filter_society', id=society['societyID']) }}">
+                            <h2 class="societyName">{{ society["societyName"] }}</h2>
+                        </a>
                     </div>
+        
                     {% endfor %}
                 </div>
             </div>

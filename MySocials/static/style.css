@@ -44,6 +44,37 @@ img {
   height: auto;
 }
 
+
+/* GLOBALS */
+/* Nav bar */
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 0rem 1rem;
+  background: #cfd8dc;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav li {
+  padding-left: 1em;
+}
+
+nav a{
+  text-decoration: none;
+}
+
+#navLogo {
+  color:#202329;
+  text-decoration: none;
+}
+
+
+
+/* EVENTS PAGE */
 #everythingContainer {
   display: flex;
   flex-direction: row;
@@ -69,6 +100,16 @@ img {
   display: flex;
   align-items: right;
 }
+
+#selectedProfile {
+  background-color: cadetblue;
+}
+
+.profileContainer a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
 .profileContainer .profilePic {
   width: 64px;
   height: 64px;
