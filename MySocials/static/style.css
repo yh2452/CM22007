@@ -2,24 +2,10 @@
 body {
   font-family: "Noto Serif", "Georgia", serif;
   color: #202329;
-  margin: 1em;
+  margin: 0;
   padding: 0;
 }
 
-nav {
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-}
-nav h2 {
-  font-size: 2.5rem;
-}
-nav ul {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
 header {
   background-color: #202329;
   padding: 20px;
@@ -79,6 +65,7 @@ nav a{
   display: flex;
   flex-direction: row;
   gap: 1em;
+  margin: 1em;
 }
 #everythingContainer #userContainer {
   display: flex;
@@ -133,6 +120,7 @@ nav a{
   justify-content: flex-start;
   align-items: flex-end;
   position: relative;
+  margin-bottom: 1em;
 }
 #eventsContainer .profileContainer .profilePic {
   width: 64px;
@@ -149,17 +137,17 @@ nav a{
 #eventsContainer .profileContainer .eventText h1 {
   color: #FFFFFF;
   font-size: 1.5em;
-  margin: 0.67em 0.67em;
+  margin: 0.67em 0;
 }
 #eventsContainer .profileContainer .eventText h2 {
   color: #FFFFFF;
   font-size: 1em;
-  margin: 0.67em 0.67em;
+  margin: 0.67em 0;
 }
 #eventsContainer .profileContainer .eventText p {
   color: #FFFFFF;
   font-size: 0.9em;
-  margin: 0.67em 0.67em;
+  margin: 0.67em 0;
 }
 
 #leftContainer {
@@ -188,7 +176,7 @@ nav a{
 }
 #filterContainer input[type=date],
 #filterContainer input[type=time] {
-  width: 44.375%;
+  width: 45.125%;
   background-color: #FFC500;
   border: 2px solid #FFC500;
   margin: 0 0 0.25em 0;
@@ -302,3 +290,54 @@ nav a{
   background-color: #DD2277;
   margin: 1em 0;
 }/*# sourceMappingURL=style.css.map */
+
+
+/* REGISTER FORM */
+.formPage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.formContainer {
+  background-color: #202329;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.formContainer h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ecf0f1;
+  margin-bottom: 20px;
+}
+
+.registerForm input, .loginForm input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: none;
+  border-radius: none;
+  outline: none;
+}
+
+.registerForm input[type="submit"],
+.loginForm input[type="submit"]{
+  background-color: #002B56;
+  color: #ecf0f1;
+  cursor: pointer;
+}
+
+.loginLink p, .registerLink p {
+  color: #ecf0f1;
+  margin: 12px;
+  font-size: 16px;
+}
