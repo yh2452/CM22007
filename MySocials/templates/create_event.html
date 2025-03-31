@@ -1,6 +1,8 @@
 {% extends 'base.html' %}
 <!-- Page where socials/events are created -->
 
+{% block title %}Create Event{% endblock %}
+
 {% block content %}
 
 <form method="post">
@@ -17,8 +19,8 @@
     <label for="location">Location</label>
     <input name="location" id="location" required>
     <br>
-    <label for="date">Date</label>
-    <input name="date" id="date" required>
+    <label for="date">Date & Time</label>
+    <input type="datetime" name="date" id="date" required>
     <br>
     <label for="description">Description</label> 
     <textarea name="description" id="description" required></textarea>

@@ -57,6 +57,7 @@ def getAllEvents(cursor, filters):
     if len(filter_queries) > 0:
         query = query + ' WHERE ' + ' AND '.join(filter_queries)
         print(f"Selecting events, query: {query}")
+    query += ' ORDER BY Event.eventDATE DESC'
           
     cursor.execute(query)
     values = cursor.fetchall()
@@ -100,6 +101,8 @@ def create():
         tags = request.form["tags"]
         
         addSocial(cursor, socID, g.user["userID"], title, date, description, tags)
+        conn.commit()
+        return redirect(url_for('main.index'))
     
     # Gets the societies the user has admin permissions for
     cursor.execute("SELECT * FROM Committee INNER JOIN Society WHERE Committee.userID = (?) AND Society.societyID = Committee.societyID AND Committee.adminFlag = 1", (g.user["userID"],))

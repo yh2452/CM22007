@@ -2,8 +2,5 @@ import sqlite3
 
 connection = sqlite3.connect("MySocials/table.db")
 cursor = connection.cursor()
-cursor.row_factory = sqlite3.Row
-cursor.execute("SELECT * FROM Society")
-values = cursor.fetchall()
-for value in values:
-    print(value["societyID"])
+cursor.execute("INSERT INTO Committee VALUES (?,?,?)", (10, 3, 1))
+connection.commit()
