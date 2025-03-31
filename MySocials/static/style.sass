@@ -6,11 +6,11 @@ $yellow: #FFC500
 $pink: #DD2277
 $gray: #EAE9E5
 
-$font-stack: "Noto Serif", "Georgia", serif
+$font-stack: "Noto Serif", "Inter", serif
 
 // Base styles
 body
-  font-family: $font-stack
+  font-family: "Inter"
   color: $black
   margin: 1em
   padding: 0
@@ -23,6 +23,7 @@ header
 
 h1
   font-size: 3.12rem
+  font-family: "Inter"
   font-weight: 700
   margin: 0.67em 0
 
@@ -97,6 +98,7 @@ img
 
     .eventText
       background-color: $blue
+      font: "Inter"
       width: 100%
       height: 100%
       border-radius: 24px 24px 24px 0
@@ -243,3 +245,17 @@ img
     height: 4px
     background-color: $pink
     margin: 1em 0
+
+
+#createEventContainer
+  background-color: rgba(0, 0, 0, 0.3)
+
+  #createEventBox
+    color: $blue
+    width: 100%
+    height: 100%
+
+    form
+      padding: 1em
+
+      #title
