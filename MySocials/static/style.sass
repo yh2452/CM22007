@@ -6,11 +6,11 @@ $yellow: #FFC500
 $pink: #DD2277
 $gray: #EAE9E5
 
-$font-stack: "Noto Serif", "Inter", serif
+$font-stack: "Noto Serif", "Georgia", serif
 
 // Base styles
 body
-  font-family: "Inter"
+  font-family: $font-stack
   color: $black
   margin: 1em
   padding: 0
@@ -22,7 +22,6 @@ header
 
 h1
   font-size: 3.12rem
-  font-family: "Inter"
   font-weight: 700
   margin: 0.67em 0
 
@@ -97,7 +96,6 @@ img
 
     .eventText
       background-color: $blue
-      font: "Inter"
       width: 100%
       height: 100%
       border-radius: 24px 24px 24px 0
@@ -244,49 +242,3 @@ img
     height: 4px
     background-color: $pink
     margin: 1em 0
-
-
-#createEventContainer
-  display: flex
-  flex-direction: column
-  justify-content: center 
-  align-items: center
-  background-color: rgba(0, 0, 0, 0.3)
-  width: 100%
-  height: 100%
-
-  #topBlue
-    width: 40%
-    height: 10%
-    background-color: $blue
-    border-radius: 20px 20px 0 0
-
-  #createEventBox
-    font-size: 2em
-    font-family: $font-stack
-    background-color: $white
-    display: flex
-    justify-content: center
-    align-items: center
-    color: $blue
-    width: 40%
-    height: 50%
-    border-radius: 0 0 20px 20px
-
-    form
-      label
-        width: 50%
-        height: 25px
-      input
-          width: 50%
-          border: 2px solid $blue
-          border-radius: 5px
-          padding: 0.5em
-      textarea
-        width: 50%
-        height: 50px
-        border: 2px solid $blue
-        border-radius: 5px
-        padding: 0.5em
-      select
-        width: 100%

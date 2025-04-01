@@ -1,11 +1,25 @@
 @charset "UTF-8";
 body {
-  font-family: "Inter";
+  font-family: "Noto Serif", "Georgia", serif;
   color: #202329;
   margin: 1em;
   padding: 0;
 }
 
+nav {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+nav h2 {
+  font-size: 2.5rem;
+}
+nav ul {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
 header {
   background-color: #202329;
   padding: 20px;
@@ -13,7 +27,6 @@ header {
 
 h1 {
   font-size: 3.12rem;
-  font-family: "Inter";
   font-weight: 700;
   margin: 0.67em 0;
 }
@@ -31,6 +44,37 @@ img {
   height: auto;
 }
 
+
+/* GLOBALS */
+/* Nav bar */
+nav {
+  display: flex;
+  justify-content: space-between;
+  padding: 0rem 1rem;
+  background: #cfd8dc;
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+}
+
+nav li {
+  padding-left: 1em;
+}
+
+nav a{
+  text-decoration: none;
+}
+
+#navLogo {
+  color:#202329;
+  text-decoration: none;
+}
+
+
+
+/* EVENTS PAGE */
 #everythingContainer {
   display: flex;
   flex-direction: row;
@@ -56,6 +100,16 @@ img {
   display: flex;
   align-items: right;
 }
+
+#selectedProfile {
+  background-color: cadetblue;
+}
+
+.profileContainer a {
+  color: inherit;
+  text-decoration: inherit;
+}
+
 .profileContainer .profilePic {
   width: 64px;
   height: 64px;
@@ -88,7 +142,6 @@ img {
 }
 #eventsContainer .profileContainer .eventText {
   background-color: #002B56;
-  font: "Inter";
   width: 100%;
   height: 100%;
   border-radius: 24px 24px 24px 0;
@@ -248,52 +301,4 @@ img {
   height: 4px;
   background-color: #DD2277;
   margin: 1em 0;
-}
-
-#createEventContainer {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.3);
-  width: 100%;
-  height: 100%;
-}
-#createEventContainer #topBlue {
-  width: 40%;
-  height: 10%;
-  background-color: #002B56;
-  border-radius: 20px 20px 0 0;
-}
-#createEventContainer #createEventBox {
-  font-size: 2em;
-  font-family: "Noto Serif", "Inter", serif;
-  background-color: #FFFFFF;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #002B56;
-  width: 40%;
-  height: 50%;
-  border-radius: 0 0 20px 20px;
-}
-#createEventContainer #createEventBox form label {
-  width: 50%;
-  height: 25px;
-}
-#createEventContainer #createEventBox form input {
-  width: 50%;
-  border: 2px solid #002B56;
-  border-radius: 5px;
-  padding: 0.5em;
-}
-#createEventContainer #createEventBox form textarea {
-  width: 50%;
-  height: 50px;
-  border: 2px solid #002B56;
-  border-radius: 5px;
-  padding: 0.5em;
-}
-#createEventContainer #createEventBox form select {
-  width: 100%;
 }/*# sourceMappingURL=style.css.map */
