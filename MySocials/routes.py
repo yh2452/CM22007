@@ -64,6 +64,22 @@ def getAllEvents(cursor, filters):
             else:
                 endDateTime = f"{filters['endDate']} 23:59"
             filter_queries.append(f"Event.eventDate <= '{endDateTime}'")
+        elif key == "subscribed":
+            attending = []
+            # _, temp_cursor = get_db_conn_cursor()
+            if g.user:
+                attendingEvents = cursor.execute("SELECT Event.eventID FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?)", (session["userID"],)).fetchall()
+                for event in attendingEvents:
+                    attending.append(event["eventID"])
+                if len(attending) > 0:
+                    filter_queries.append(f"Event.eventID IN {tuple(attending)}")
+                else:
+                    return []
+
+            
+            
+        elif key == "onCampus":
+            filter_queries.append(f"Event.eventTags LIKE '%{filters[key]}%'")
     
     # SOCIETY SELECTION
     if "socID" in session:
@@ -73,7 +89,7 @@ def getAllEvents(cursor, filters):
     if len(filter_queries) > 0:
         query = query + ' WHERE ' + ' AND '.join(filter_queries)
         print(f"Selecting events, query: {query}")
-    query += ' ORDER BY Event.eventDATE DESC'
+    query += ' ORDER BY Event.eventDate DESC'
           
     cursor.execute(query)
     values = cursor.fetchall()
