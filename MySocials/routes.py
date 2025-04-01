@@ -13,20 +13,36 @@ main = Blueprint('main', __name__)
 # TODO: Implement filters - yusuf
 def index():
     filters = {}
+    # Create cursor
+    conn, cursor = get_db_conn_cursor()
+    cursor.row_factory = sqlite3.Row
+    
+    if request.method == 'POST':
+        # MARKING EVENT AS ATTENDED
+        if request.form['attendButton'] and g.user:
+            toggleAttend(cursor, session["userID"], request.form['attendButton'])
+            conn.commit()
+    
     if request.method == 'GET':
         for field in request.args:
             # If the filter/field has been filled, add it to the dictionary
             if request.args[field]:
                 filters[field] = request.args[field]
-    # Create cursor
-    _, cursor = get_db_conn_cursor()
-    cursor.row_factory = sqlite3.Row
-    # Get list of societies and events. For now, we're not implementing filters
+   
+    # Get list of societies and events. 
     events = getAllEvents(cursor, filters)
     societies = getAllSocieties(cursor)
+    
+    # Code to get only the eventID for the events to be attended
+    attending = []
+    if g.user:
+        attendingEvents = getAllAttendingEvents(cursor, session["userID"])
+        for event in attendingEvents:
+            attending.append(event["eventID"])
+    
     cursor.close()
     
-    return render_template("index.html", events=events, societies=societies)
+    return render_template("index.html", events=events, societies=societies, attending=attending)
 
 # TEMP FUNCTIONS untill i implement filters properly
 def getAllEvents(cursor, filters):

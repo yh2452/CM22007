@@ -98,12 +98,12 @@ def toggleAttend(cursor, userID, eventID):
     """
     Allows a user to mark or unmark an event for future attending.
     """
-    cursor.execute("SELECT eventID FROM Attending WHERE userID = (?) AND eventID = (?)", (eventID, userID))
+    cursor.execute("SELECT eventID FROM Attending WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     event = cursor.fetchall()
     if not event:
         cursor.execute("INSERT INTO Attending VALUES (?,?,?)", (eventID, userID, 0))
     else:
-        cursor.execute("DELETE FROM Attending WHERE userID = (?) AND eventID = (?)", (eventID, userID))
+        cursor.execute("DELETE FROM Attending WHERE userID = (?) AND eventID = (?)", (userID, eventID))
     
 def toggleAttendNotifs(cursor, userID, eventID):
     """
@@ -138,6 +138,14 @@ def getAttendingEvents(cursor, userID, flag):
         cursor.execute("SELECT Event.* FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?) AND Event.eventDate >= (?)", (userID, date))
 
     return cursor.fetchall()  # any result formatting?
+
+# Added by yusuf
+def getAllAttendingEvents(cursor, userID):
+    """
+    Return all socials the user has or will attend, regardless of time.
+    """
+    cursor.execute("SELECT Event.* FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?)", (userID,))
+    return cursor.fetchall()
 
 ### [PINNED TABLE] ###
 # A 'Pinned' Table where we store (userID, eventID)

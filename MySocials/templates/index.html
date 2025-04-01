@@ -103,8 +103,17 @@
                 <!-- PLACEHOLDER IMAGE -->
                 <img src="https://cdn-icons-png.flaticon.com/512/149/149071.png" alt="Profile Picture"
                     class="profilePic">
-                <div class="eventText">
-                    <h1>{{ event["eventName"] }}</h1>
+                <div class="{{'attendedEventText' if event['eventID'] in attending else 'eventText'}}">
+                    <div class="eventTitle">
+                        <h1>{{ event["eventName"] }}</h1>
+                        {% if g.user %}
+                        <form action="#" method="post">
+                            <button type="submit" name="attendButton" value="{{ event['eventID'] }}">
+                            {{"Remove Attendence" if event["eventID"] in attending else "Attend Event"}}
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
                     <h2>{{ event["societyName"] }}</h2>
                     <h2>{{ event["eventDate"]  }}</h2>
                     <p>{{ event["eventDescription"] }}</p>

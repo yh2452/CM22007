@@ -2,10 +2,10 @@
 body {
   font-family: "Noto Serif", "Georgia", serif;
   color: #202329;
-  margin: 1em;
+  margin: 0;
   padding: 0;
 }
-
+/* 
 nav {
   width: 100%;
   display: flex;
@@ -19,13 +19,14 @@ nav ul {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-}
+} */
 header {
   background-color: #202329;
   padding: 20px;
 }
 
 h1 {
+  font-family: "Inter";
   font-size: 3.12rem;
   font-weight: 700;
   margin: 0.67em 0;
@@ -37,6 +38,7 @@ button {
   padding: 3px 6%;
   border: none;
   border-radius: 5px;
+  cursor: pointer;
 }
 
 img {
@@ -79,6 +81,7 @@ nav a{
   display: flex;
   flex-direction: row;
   gap: 1em;
+  margin: 1em;
 }
 #everythingContainer #userContainer {
   display: flex;
@@ -133,6 +136,7 @@ nav a{
   justify-content: flex-start;
   align-items: flex-end;
   position: relative;
+  margin-bottom: 1em;
 }
 #eventsContainer .profileContainer .profilePic {
   width: 64px;
@@ -146,21 +150,46 @@ nav a{
   height: 100%;
   border-radius: 24px 24px 24px 0;
 }
-#eventsContainer .profileContainer .eventText h1 {
+
+#eventsContainer .profileContainer .attendedEventText{
+  background-color: hsl(194, 56%, 45%);
+  width: 100%;
+  height: 100%;
+  border-radius: 24px 24px 24px 0;
+}
+
+.eventTitle {
+  display: flex;
+  justify-content: space-between;
+}
+
+.eventTitle h1 {
   color: #FFFFFF;
   font-size: 1.5em;
   margin: 0.67em 0;
 }
-#eventsContainer .profileContainer .eventText h2 {
+
+.eventTitle button {
+  background-color: #cfd8dc;
+  padding: 0;
+  color: #202329;
+  font-size: 1.5em;
+}
+
+
+#eventsContainer .profileContainer .eventText h2, 
+#eventsContainer .profileContainer .attendedEventText h2{
   color: #FFFFFF;
   font-size: 1em;
   margin: 0.67em 0;
 }
-#eventsContainer .profileContainer .eventText p {
+#eventsContainer .profileContainer .eventText p,
+#eventsContainer .profileContainer .attendedEventText p {
   color: #FFFFFF;
   font-size: 0.9em;
   margin: 0.67em 0;
 }
+
 
 #leftContainer {
   width: 100%;
@@ -302,3 +331,104 @@ nav a{
   background-color: #DD2277;
   margin: 1em 0;
 }/*# sourceMappingURL=style.css.map */
+
+
+/* REGISTER FORM */
+.formPage{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.formContainer {
+  background-color: #202329;
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+.formContainer h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #ecf0f1;
+  margin-bottom: 20px;
+}
+
+.registerForm input, .loginForm input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: none;
+  border-radius: none;
+  outline: none;
+}
+
+.registerForm input[type="submit"],
+.loginForm input[type="submit"]{
+  background-color: #002B56;
+  color: #ecf0f1;
+  cursor: pointer;
+}
+
+.loginLink p, .registerLink p {
+  color: #ecf0f1;
+  margin: 12px;
+  font-size: 16px;
+}
+
+/* Create event css */
+#createEventContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.3);
+  width: 100%;
+  height: 100vh;
+}
+#createEventContainer #topBlue {
+  width: 40%;
+  height: 10%;
+  background-color: #002B56;
+  border-radius: 20px 20px 0 0;
+}
+#createEventContainer #createEventBox {
+  font-size: 2em;
+  font-family: "Noto Serif", "Inter", serif;
+  background-color: #FFFFFF;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #002B56;
+  width: 40%;
+  height: 50%;
+  border-radius: 0 0 20px 20px;
+}
+#createEventContainer #createEventBox form label {
+  width: 50%;
+  height: 25px;
+}
+#createEventContainer #createEventBox form input {
+  width: 50%;
+  border: 2px solid #002B56;
+  border-radius: 5px;
+  padding: 0.5em;
+}
+#createEventContainer #createEventBox form textarea {
+  width: 50%;
+  height: 50px;
+  border: 2px solid #002B56;
+  border-radius: 5px;
+  padding: 0.5em;
+}
+#createEventContainer #createEventBox form select {
+  width: 100%;
+}
+
