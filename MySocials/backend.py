@@ -34,7 +34,7 @@ def isSanitised(*argv):
 
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
-    # for me (ollie), the commented line below that was originally there does not work.
+    # NOTE: switch to commented out connection when doing the pytest functions.
     connection = sqlite3.connect('MySocials/table.db')
     #connection = sqlite3.connect('table.db')
     cursor = connection.cursor()
@@ -67,13 +67,11 @@ def isUserDuplicate(cursor, username, email):
     cursor.execute("SELECT userID FROM User WHERE username = (?) OR email = (?)", (username, email))
     status = cursor.fetchall()
     if status:
-        #i.e. duplicate users present
         return True
     else: 
         return False
 
 def addUser(cursor, forename, surname, username, password, email):
-    # remember to hash the password - all you have to do is call the hash subroutine = hash(password)
     password = hash(password)
     cursor.execute("INSERT INTO User (username, password, forename, surname, email) VALUES (?,?,?,?,?)", (username, password, forename, surname, email))
     print(f"User {username} successfully registered.")
@@ -137,9 +135,8 @@ def getAttendingEvents(cursor, userID, flag):
     else:
         cursor.execute("SELECT Event.* FROM Event INNER JOIN Attending ON Event.eventID=Attending.eventID WHERE Attending.userID = (?) AND Event.eventDate >= (?)", (userID, date))
 
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall()  
 
-# Added by yusuf
 def getAllAttendingEvents(cursor, userID):
     """
     Return all socials the user has or will attend, regardless of time.
@@ -166,7 +163,7 @@ def getPinnedEvents(cursor, userID):
     Returns all events the user has pinned.
     """
     cursor.execute("SELECT Event.* FROM Event INNER JOIN Pinned ON Event.eventID=Pinned.eventID WHERE Attending.userID = (?)", (userID,)) 
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall()  
 
 ### [FOLLOWED TABLE] ###
 # A 'Followed' Table where we store (userID, societyID, notificationFlag)
@@ -187,7 +184,7 @@ def getFollowed(cursor, userID):
     Returns all societies the user follows.
     """
     cursor.execute("SELECT Society.* FROM Society INNER JOIN Followed ON Society.societyID=Followed.societyID WHERE Followed.userID = (?)", (userID,))
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall()  
 
 def toggleFollowNotifs(cursor, userID, societyID):
     """
@@ -283,7 +280,6 @@ def addSocial(cursor, societyID, userID, eventName, eventDate, eventDescription,
     """
     Allows a committee member to create a social
     """
-    # will be linked to notifications
     if isSanitised(eventName, eventDescription):
         cursor.execute("INSERT INTO Event (societyID, userID, eventName, eventDate, eventDescription, ratingCount, averageRating, eventTags) VALUES (?,?,?,?,?,?,?,?)", (societyID, userID, eventName, eventDate, eventDescription, 0.0 , 0, eventTags,))
 
@@ -291,7 +287,6 @@ def editSocial(cursor, eventID, name, date, description, data):
     """
     Allows a user to edit a social.
     """
-    # will be linked to notifications
     if isSanitised(name, description):
         cursor.execute("UPDATE Event SET eventName = (?), eventDate = (?), eventDescription = (?), eventData = (?) WHERE eventID = (?)", (name, date, description, data, eventID))
 
@@ -299,7 +294,6 @@ def deleteSocial(cursor, eventID):
     """
     Allows users to delete a social.
     """
-    # will be linked to notifications
     cursor.execute("DELETE FROM Event WHERE eventID = (?)", (eventID))
 
 def getAccessibleSocials(cursor, userID):
@@ -322,9 +316,6 @@ def getSocialData(cursor, societyID, eventID, metric=None):
     """
     Allows data about a social to be found
     """
-    #### do we want to show eventDescription (tags) as well? - Jamie
-    # what if they type in more than one metric?????????
-    # unless we just return all metrics??????? therefore we don't need to take in metric as a parameter
     cursor.execute("SELECT eventData FROM Event WHERE societyID = (?) AND eventID = (?)", (societyID, eventID))
     return cursor.fetchall()
 
@@ -332,7 +323,6 @@ def filterSocials (cursor, filters):
     """
     Filters the socials that the user sees
     """
-    # I guess filters will be an array? 
     if filters:
         query = "SELECT eventName FROM Event WHERE "
         keywords = []
@@ -382,8 +372,6 @@ def addFeedback(cursor, eventID, feedbackData):
     """
     Adds user feedback to the corresponding table.
     """
-    # format feedback data?
-    # feedbackData = format(feedbackData)
     cursor.execute("INSERT INTO Feedback (eventID, feedbackData) VALUES (?,?)", (eventID, feedbackData))
 
 def getFeedback(cursor, feedbackID):
@@ -391,15 +379,14 @@ def getFeedback(cursor, feedbackID):
     Retrieves feedback data for a given feedbackID.
     """
     cursor.execute("SELECT feedbackData FROM Feedback WHERE feedbackID == (?)", (feedbackID,))
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall() 
 
 def getEventFeedback(cursor, eventID):
     """
     Retrieves all feedback for a given event.
     """
     cursor.execute("SELECT feedbackData FROM Feedback WHERE eventID == (?)", (eventID,))
-    return cursor.fetchall()  # any result formatting?
-
+    return cursor.fetchall()
 
 ### [REPORT TABLE] ###
 # A 'Report' Table where we store (reportID, eventID, reportData?)
@@ -408,8 +395,6 @@ def addReport(cursor, eventID, reportData):
     """
     Adds a malpractice report to the corresponding table.
     """
-    # format report data?
-    # reportData = format(reportData)
     cursor.execute("INSERT INTO Report (eventID, reportData) VALUES (?,?)", (eventID, reportData,))
 
 def getReport(cursor, reportID):
@@ -417,14 +402,14 @@ def getReport(cursor, reportID):
     Retrieves report data for a given reportID.
     """
     cursor.execute("SELECT reportData FROM Report WHERE reportID == (?)", (reportID,))
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall()  
 
 def getEventReports(cursor, eventID):
     """
     Retrieves all reports for a given event.
     """
     cursor.execute("SELECT reportData FROM Report WHERE eventID == (?)", (eventID,))
-    return cursor.fetchall()  # any result formatting?
+    return cursor.fetchall()  
 
 
 # SOFTWARE TESTING
@@ -460,8 +445,8 @@ def test_Filtering():
 def test_Profanity():
     goodText = "Anime Marathon Social"
     badText = "The Damn You Social"
-    assert sanitiseInput(goodText) == goodText
-    assert sanitiseInput(badText) == None
+    assert isSanitised(goodText) == True
+    assert isSanitised(badText) == False
 
 
 def test_ToggleAttendEvent():
