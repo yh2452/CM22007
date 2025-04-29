@@ -1,0 +1,14 @@
+[project]
+name = "MySocials"
+version = "1.0.0"
+description = "The MySocials website, implemented for CM22007."
+depdencies = [
+    "flask",
+    "sqlite3",
+    "bcrypt",
+    "better-profanity",
+]
+
+[build-system]
+requires = ["flit_core<4"]
+build-backend = "flit_core.buildapi"

@@ -35,7 +35,7 @@ def isSanitised(*argv):
 def get_db_conn_cursor():
     # NOTE: set the database link to wherever we're keeping the main database. 
     # NOTE: switch to commented out connection when doing the pytest functions.
-    connection = sqlite3.connect('MySocials/table.db')
+    connection = sqlite3.connect('table.db')
     #connection = sqlite3.connect('table.db')
     cursor = connection.cursor()
     return connection, cursor
