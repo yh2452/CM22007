@@ -42,7 +42,15 @@ def index():
     
     cursor.close()
     
-    return render_template("index.html", events=events, societies=societies, attending=attending)
+    # CODE FOR DETERMINING WHETHER OR NOT TO USE THE ALT CSS STYLING
+    USE_ALT_STYLE = session.get("use_alt_style")
+    if USE_ALT_STYLE is None:
+        session["use_alt_style"] = False
+        USE_ALT_STYLE = False
+   
+    
+    return render_template("index.html", events=events, societies=societies, 
+                           attending=attending, alt_style=USE_ALT_STYLE)
 
 # TEMP FUNCTIONS untill i implement filters properly
 def getAllEvents(cursor, filters):
@@ -146,5 +154,13 @@ def create():
 @main.route("/settings")
 def settings():
     return render_template("settings.html")
+
+@main.route("/toggle_style")
+def toggle_style():
+    """Changes between the different css files.
+    """
+    session['use_alt_style']  = not session.get('use_alt_style', False)
+    print("Alternate CSS being used: {}".format(session['use_alt_style']))
+    return redirect(url_for('main.index'))
 
 
