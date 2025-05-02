@@ -27,6 +27,7 @@ def index():
         for field in request.args:
             # If the filter/field has been filled, add it to the dictionary
             if request.args[field]:
+                print(request.args[field])
                 filters[field] = request.args[field]
    
     # Get list of societies and events. 
@@ -132,13 +133,25 @@ def create():
     conn, cursor = get_db_conn_cursor()
     cursor.row_factory = sqlite3.Row
     
+    # List of tags for alt ui
+    TAG_LIST = ["On Campus", "Competitive", "Independent", "Socialising", "Presentation", "Marathon"]
+    USE_ALT_STYLE = session.get("use_alt_style", False)
+    
     if request.method == 'POST':
         title = request.form['title']
         socID = request.form['societyDropdown']
         location = request.form['location']
         date = request.form["date"]
         description = request.form["description"]
-        tags = request.form["tags"]
+        
+        if USE_ALT_STYLE:
+            date = date.replace("T", " ")
+            tags = []
+            for tag in TAG_LIST:
+                tags.append(request.form.get(tag, ""))
+            tags = ', '.join(filter(None, tags))
+        else:
+            tags = request.form["tags"]
         
         addSocial(cursor, socID, g.user["userID"], title, date, description, tags)
         conn.commit()
@@ -148,7 +161,8 @@ def create():
     cursor.execute("SELECT * FROM Committee INNER JOIN Society WHERE Committee.userID = (?) AND Society.societyID = Committee.societyID AND Committee.adminFlag = 1", (g.user["userID"],))
     user_societies = cursor.fetchall()
     
-    return render_template("create_event.html", societies=user_societies)
+    return render_template("create_event.html", societies=user_societies, 
+                           alt_style=USE_ALT_STYLE, tag_list= TAG_LIST)
 
 # SETTINGS
 @main.route("/settings")

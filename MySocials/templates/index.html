@@ -61,13 +61,22 @@
                         </div>
                         <div>
                             <!-- These checkboxes are implemented as REGULAR checkboxes! please edit them to be tristate when you can -->
+                            {% if alt_style %}
+                            <select class="tagDropdown" name="sort">
+                                <option value="On Campus">On Campus</option>
+                                <option value="Off Campus">Off Campus</option>
+                                <option value="Mystery">Mystery</option>
+                                <option value="Socialising">Socialising</option>
+                                <option value="Presentation">Presentation</option>
+                            </select>
+                            {% else %}
                             <input type="checkbox" id="subscribed" name="subscribed" value="subscribed">
                             <label for="subscribed">Attending</label>
                             <br>
                             <input type="checkbox" id="favorited" name="favorited" value="favorited">
                             <label for="favorited">Favorited</label>
                             <br>
-                            <input type="checkbox" id="onCampus" name="onCampus" value="onCampus">
+                            <input type="checkbox" id="onCampus" name="onCampus" value="On Campus">
                             <label for="onCampus">On Campus</label>
                             <br>
                             <input type="checkbox" id="societyEvent" name="societyEvent" value="societyEvent">
@@ -75,6 +84,7 @@
                             <br>
                             <input type="checkbox" id="ticketedEvent" name="ticketedEvent" value="ticketedEvent">
                             <label for="ticketedEvent">Ticketed Event</label>
+                            {% endif %}
                         </div>
                     </div>
                 </form>

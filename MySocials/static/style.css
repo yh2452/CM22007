@@ -238,7 +238,8 @@ nav a{
   gap: 1em;
   margin: 0 0;
 }
-#filterContainer #sortDropdown {
+#filterContainer #sortDropdown,
+.tagDropdown {
   width: 100%;
   margin: 0 0 0.25em 0;
   background-color: #FFC500;
@@ -445,6 +446,18 @@ nav a{
   width: 50%;
   height: 25px;
 }
+
+#createEventContainer #createEventBox form .checkboxTag{
+  width: 20%;
+  height: 5px;
+  font-size: 0.5em;
+}
+#createEventContainer #createEventBox form #checkboxTags{
+  display:flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+}
+
 #createEventContainer #createEventBox form input {
   width: 50%;
   border: 2px solid #002B56;

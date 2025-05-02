@@ -24,13 +24,22 @@
             <input name="location" id="location" required>
             <br>
             <label for="date">Date & Time</label>
-            <input name="date" id="date" required>
+            <input name="date" id="date" type="{{ 'datetime-local' if alt_style else 'datetime' }}" required>
             <br>
             <label for="description">Description</label> 
             <textarea name="description" id="description" required></textarea>
             <br>
+            {% if alt_style %}
+            <div id="checkboxTags">
+                {% for tag_name in tag_list %}
+                <input type="checkbox" id="{{ tag_name }}" name="{{ tag_name }}" value="{{ tag_name }}">
+                <label for="{{ tag_name }}" class="checkboxTag">{{ tag_name }}</label>
+                {% endfor %}
+            </div>
+            {% else %}
             <label for="tags">Event Tags</label>
             <input name="tags" id="tags" required>
+            {% endif %}
             <input type="submit" value="Save">
         </form>
     </div>
